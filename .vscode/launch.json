@@ -1,0 +1,56 @@
+"""VS Code launch configuration."""
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Python: Streamlit App",
+      "type": "python",
+      "request": "launch",
+      "module": "streamlit",
+      "args": [
+        "run",
+        "app/streamlit_app.py"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Train EEG",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/train.py",
+      "args": [
+        "--modality",
+        "eeg",
+        "--epochs",
+        "20"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Validate Dataset",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/validate_dataset.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Run Tests",
+      "type": "python",
+      "request": "launch",
+      "module": "pytest",
+      "args": [
+        "tests/",
+        "-v"
+      ],
+      "console": "integratedTerminal"
+    }
+  ]
+}

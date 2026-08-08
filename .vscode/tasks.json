@@ -1,0 +1,141 @@
+"""VS Code tasks."""
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "pip",
+        "install",
+        "-r",
+        "requirements.txt"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Validate Environment",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "scripts/setup_environment.py"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Validate Dataset",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "scripts/validate_dataset.py"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Create Data Splits",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "scripts/create_splits.py"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Train EEG Model",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "scripts/train.py",
+        "--modality",
+        "eeg",
+        "--epochs",
+        "20"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Train Imaging Model",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "scripts/train.py",
+        "--modality",
+        "imaging",
+        "--epochs",
+        "20"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Train Multimodal Model",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "scripts/train.py",
+        "--modality",
+        "multimodal",
+        "--epochs",
+        "20"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "tests/",
+        "-v"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Format Code",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "black",
+        "src/",
+        "models/",
+        "scripts/",
+        "tests/"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint Code",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "-m",
+        "flake8",
+        "src/",
+        "models/",
+        "scripts/",
+        "tests/"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Launch Streamlit",
+      "type": "shell",
+      "command": "streamlit",
+      "args": [
+        "run",
+        "app/streamlit_app.py"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}

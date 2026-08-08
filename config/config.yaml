@@ -1,0 +1,72 @@
+project:
+  name: "Schizophrenia Multimodal AI Detection"
+  description: "Multimodal deep learning for schizophrenia classification using EEG, MRI, fMRI, and CT"
+  version: "0.1.0"
+  authors:
+    - name: "B.Tech Student"
+      institution: "University"
+
+device:
+  type: "auto"  # 'auto', 'cuda', or 'cpu'
+  seed: 42
+
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  metadata: "data/metadata"
+  splits: "data/splits"
+  results: "results"
+  checkpoints: "models/checkpoints"
+  logs: "results/logs"
+
+classification:
+  num_classes: 2
+  class_labels:
+    0: "Healthy Control"
+    1: "Schizophrenia"
+
+training:
+  batch_size: 16
+  num_workers: 4
+  epochs: 50
+  learning_rate: 0.0001
+  weight_decay: 0.00001
+  early_stopping_patience: 10
+  early_stopping_min_delta: 0.001
+  warmup_epochs: 0
+  
+  # Data splitting
+  train_ratio: 0.7
+  validation_ratio: 0.15
+  test_ratio: 0.15
+
+  # Loss and optimization
+  loss_function: "cross_entropy"  # 'cross_entropy', 'focal_loss'
+  optimizer: "adamw"  # 'adam', 'adamw', 'sgd'
+  scheduler: "cosine"  # 'cosine', 'step', 'exponential'
+  
+  # Class weighting
+  use_class_weights: true
+  
+  # Mixed precision
+  use_amp: false
+
+inference:
+  confidence_threshold: 0.5
+  return_uncertainty: true
+
+logging:
+  level: "INFO"  # 'DEBUG', 'INFO', 'WARNING', 'ERROR'
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+visualization:
+  dpi: 300
+  style: "seaborn-v0_8-darkgrid"
+  figure_format: "png"
+
+# Metadata
+metadata:
+  created: 2024-01-01
+  last_updated: 2024-01-01
+  research_focus: "Multimodal schizophrenia detection"
+  disclaimer: "Research prototype - not for clinical use"

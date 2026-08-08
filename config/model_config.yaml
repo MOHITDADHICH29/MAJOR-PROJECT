@@ -1,0 +1,142 @@
+models:
+  # EEG Models
+  eeg:
+    cnn:
+      name: "EEG_1D_CNN"
+      input_channels: 19
+      num_filters:
+        - 16
+        - 32
+        - 64
+      kernel_size: 5
+      pool_size: 2
+      dropout_rate: 0.5
+      output_dim: 128
+      activation: "relu"
+    
+    bilstm:
+      name: "EEG_CNN_BiLSTM"
+      cnn_filters:
+        - 16
+        - 32
+      lstm_hidden_dim: 128
+      lstm_num_layers: 2
+      bidirectional: true
+      dropout_rate: 0.5
+      output_dim: 128
+    
+    transformer:
+      name: "EEG_Transformer"
+      embedding_dim: 64
+      num_heads: 4
+      num_layers: 3
+      feedforward_dim: 256
+      dropout_rate: 0.1
+      output_dim: 128
+      patch_size: 10
+  
+  # Imaging Models (3D)
+  imaging:
+    cnn3d:
+      name: "3D_CNN"
+      input_channels: 1
+      num_filters:
+        - 8
+        - 16
+        - 32
+        - 64
+      kernel_size: 3
+      pool_size: 2
+      dropout_rate: 0.5
+      output_dim: 128
+      activation: "relu"
+    
+    resnet3d:
+      name: "3D_ResNet"
+      depth: 18  # 18, 34, 50, 101
+      num_classes: 2
+      dropout_rate: 0.5
+      output_dim: 128
+    
+    transformer3d:
+      name: "3D_Vision_Transformer"
+      patch_size: 8
+      embedding_dim: 128
+      num_heads: 8
+      num_layers: 6
+      feedforward_dim: 512
+      dropout_rate: 0.1
+      output_dim: 128
+  
+  # Fusion Models
+  fusion:
+    early_fusion:
+      name: "Early_Fusion"
+      hidden_dims:
+        - 256
+        - 128
+      dropout_rate: 0.5
+      activation: "relu"
+    
+    late_fusion:
+      name: "Late_Fusion"
+      modality_fusion_dim: 256
+      output_layers:
+        - 256
+        - 128
+      dropout_rate: 0.5
+      activation: "relu"
+    
+    attention_fusion:
+      name: "Attention_Fusion"
+      hidden_dim: 256
+      num_heads: 4
+      num_layers: 2
+      dropout_rate: 0.1
+      use_cross_attention: true
+  
+  # Classifier
+  classifier:
+    hidden_dims:
+      - 128
+      - 64
+    dropout_rate: 0.3
+    activation: "relu"
+    output_activation: "softmax"
+
+# Experiment configurations
+experiments:
+  eeg_only:
+    modalities: ["eeg"]
+    fusion_method: null
+    eeg_model: "cnn_bilstm"
+  
+  imaging_only:
+    modalities: ["mri"]
+    fusion_method: null
+    imaging_model: "resnet3d"
+  
+  multimodal_early:
+    modalities: ["eeg", "mri"]
+    fusion_method: "early_fusion"
+    eeg_model: "cnn_bilstm"
+    imaging_model: "resnet3d"
+  
+  multimodal_late:
+    modalities: ["eeg", "mri"]
+    fusion_method: "late_fusion"
+    eeg_model: "cnn_bilstm"
+    imaging_model: "resnet3d"
+  
+  multimodal_attention:
+    modalities: ["eeg", "mri"]
+    fusion_method: "attention_fusion"
+    eeg_model: "cnn_bilstm"
+    imaging_model: "resnet3d"
+
+# Inference
+inference:
+  ensemble: false
+  num_tta: 1  # Test Time Augmentation
+  uncertainty_estimation: true
+  return_attention_maps: true

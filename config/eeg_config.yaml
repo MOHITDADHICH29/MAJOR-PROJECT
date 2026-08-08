@@ -1,0 +1,105 @@
+eeg:
+  # Sampling frequency
+  sampling_frequency: 256
+  
+  # Filtering parameters
+  filters:
+    low_frequency: 0.5
+    high_frequency: 45
+    notch_frequency: 50
+    filter_order: 5
+  
+  # Preprocessing
+  preprocessing:
+    re_reference: "average"  # 'average', 'common_mode', 'laplacian'
+    artifact_removal: true
+    use_ica: false
+    n_ica_components: 15
+    reject_criteria:
+      eeg: 100  # μV
+      eog: 150
+  
+  # Epoching
+  epoching:
+    event_duration: 4  # seconds
+    baseline_correction: true
+    baseline_start: -0.2  # seconds
+    baseline_end: 0
+  
+  # Frequency bands (Hz)
+  frequency_bands:
+    delta: [0.5, 4]
+    theta: [4, 8]
+    alpha: [8, 13]
+    beta: [13, 30]
+    gamma: [30, 45]
+    high_gamma: [45, 100]
+  
+  # Feature extraction
+  features:
+    time_domain:
+      - mean
+      - std
+      - max
+      - min
+      - rms
+      - hjorth_activity
+      - hjorth_mobility
+      - hjorth_complexity
+    
+    frequency_domain:
+      - psd_absolute
+      - psd_relative
+      - band_power
+      - spectral_entropy
+      - differential_entropy
+    
+    time_frequency:
+      - wavelet_energy
+      - wavelet_entropy
+  
+  # Artifact handling
+  artifact_detection:
+    method: "zscore"  # 'zscore', 'ica', 'autoreject'
+    threshold: 3.0
+  
+  # Connectivity
+  connectivity:
+    methods: ["correlation", "coherence", "plv"]
+    seed_roi: null  # null for all-to-all
+  
+  # Output format
+  output_format: "tensor"  # 'tensor', 'features'
+  n_channels: 19  # Standard 10-20 system
+  
+# Supported file formats
+supported_formats:
+  - .edf
+  - .set
+  - .fif
+  - .bdf
+  - .vhdr
+  - .csv
+  - .tsv
+
+# Channel information (10-20 system)
+channel_names:
+  - Fp1
+  - Fp2
+  - F3
+  - F4
+  - C3
+  - C4
+  - P3
+  - P4
+  - O1
+  - O2
+  - F7
+  - F8
+  - T3
+  - T4
+  - T5
+  - T6
+  - Fz
+  - Cz
+  - Pz
