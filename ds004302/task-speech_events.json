@@ -1,0 +1,12 @@
+{
+    "condition": {
+        "LongName": "Task condition",
+        "Description": "Type of stimulation presented during the block",
+        "Levels": {
+            "white_noise": "White noise is presented as a low-level baseline",
+            "words": "Lists of unrelated neutral words (nouns, verbs and adjectives) spoken by a female voice",
+	    "sentences": "Lists of unrelated neutral sentences spoken by a female voice",
+	    "reversed": "Lists of auditorily reversed sentences spoken by a female voice"
+        }
+    }
+}
