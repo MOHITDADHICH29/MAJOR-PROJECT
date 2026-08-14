@@ -1,0 +1,13 @@
+subject_id,true_label,true_name,pred_label,pred_name,confidence_sz,is_correct
+sub-04,0,Control,1,Schizophrenia,0.5078756213188171,False
+sub-15,0,Control,1,Schizophrenia,0.5083675384521484,False
+sub-25,0,Control,1,Schizophrenia,0.5075114369392395,False
+sub-27,1,Schizophrenia,1,Schizophrenia,0.508526086807251,True
+sub-30,1,Schizophrenia,1,Schizophrenia,0.5071231722831726,True
+sub-36,1,Schizophrenia,1,Schizophrenia,0.5073603987693787,True
+sub-46,1,Schizophrenia,1,Schizophrenia,0.5080159306526184,True
+sub-60,1,Schizophrenia,1,Schizophrenia,0.5075909495353699,True
+sub-61,1,Schizophrenia,1,Schizophrenia,0.5080452561378479,True
+sub-64,1,Schizophrenia,1,Schizophrenia,0.5078766345977783,True
+sub-68,1,Schizophrenia,1,Schizophrenia,0.5080910921096802,True
+sub-71,1,Schizophrenia,1,Schizophrenia,0.5072622299194336,True

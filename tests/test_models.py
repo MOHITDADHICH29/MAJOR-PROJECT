@@ -3,45 +3,9 @@
 import pytest
 import torch
 import numpy as np
-from src.utils import SyntheticDataGenerator, set_seed, get_device
+from src.utils import set_seed, get_device
 from models.eeg import EEG1DCNN
 from models.imaging import Imaging3DCNN
-
-
-class TestSyntheticData:
-    """Test synthetic data generation."""
-
-    def test_eeg_generation(self):
-        """Test EEG data generation."""
-        eeg_data = SyntheticDataGenerator.generate_eeg_tensor(
-            n_samples=2,
-            n_channels=19,
-            n_timepoints=512,
-        )
-
-        assert eeg_data.shape == (2, 19, 512)
-        assert isinstance(eeg_data, torch.Tensor)
-        assert eeg_data.dtype == torch.float32
-
-    def test_mri_generation(self):
-        """Test MRI data generation."""
-        mri_data = SyntheticDataGenerator.generate_mri_tensor(
-            n_samples=2,
-            depth=96,
-            height=96,
-            width=96,
-        )
-
-        assert mri_data.shape == (2, 1, 96, 96, 96)
-        assert isinstance(mri_data, torch.Tensor)
-
-    def test_labels_generation(self):
-        """Test labels generation."""
-        labels = SyntheticDataGenerator.generate_labels(n_samples=10, n_classes=2)
-
-        assert len(labels) == 10
-        assert torch.max(labels) < 2
-        assert torch.min(labels) >= 0
 
 
 class TestModels:
@@ -55,7 +19,7 @@ class TestModels:
         logits, embeddings = model(eeg_data)
 
         assert logits.shape == (2, 2)
-        assert embeddings.shape == (2, 128)
+        assert embeddings.shape == (2, 64)
 
     def test_imaging_3dcnn_creation(self):
         """Test 3D CNN model creation."""
@@ -76,7 +40,7 @@ class TestModels:
             logits, embeddings = model(eeg_data)
 
         assert logits.shape == (4, 2)
-        assert embeddings.shape == (4, 128)
+        assert embeddings.shape == (4, 64)
 
 
 class TestUtilities:

@@ -73,31 +73,11 @@ class EEGDataset(BaseDataset):
             EEG tensor (channels, timepoints).
         """
         if not eeg_path:
-            # Generate synthetic EEG for testing
-            from src.utils import SyntheticDataGenerator
+            raise ValueError("Missing EEG path for sample")
 
-            eeg_data = SyntheticDataGenerator.generate_eeg_tensor(
-                n_samples=1,
-                n_channels=self.expected_channels,
-            )
-            return eeg_data[0]
+        from src.preprocessing.eeg import EEGPreprocessor
+        from src.utils.paths import resolve_data_path
 
-        try:
-            # Use EEGPreprocessor for all formats including .eea
-            from src.preprocessing.eeg import EEGPreprocessor
-            
-            preprocessor = EEGPreprocessor(self.eeg_config)
-            eeg_data, _ = preprocessor.load_eeg_file(eeg_path)
-            
-            return torch.FloatTensor(eeg_data)
-
-        except Exception as e:
-            logger.warning(f"Failed to load EEG file {eeg_path}: {e}")
-            # Return synthetic data for testing
-            from src.utils import SyntheticDataGenerator
-
-            eeg_data = SyntheticDataGenerator.generate_eeg_tensor(
-                n_samples=1,
-                n_channels=self.expected_channels,
-            )
-            return eeg_data[0]
+        preprocessor = EEGPreprocessor(self.eeg_config)
+        eeg_data, _ = preprocessor.load_eeg_file(str(resolve_data_path(eeg_path)))
+        return torch.FloatTensor(eeg_data)

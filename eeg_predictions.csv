@@ -1,0 +1,12 @@
+subject_id,true_label,true_name,pred_label,pred_name,confidence_sz,is_correct
+sch-norm-s12w1,0,Control,1,Schizophrenia,0.5354170203208923,False
+sch-norm-s152w1,0,Control,1,Schizophrenia,0.5354170203208923,False
+sch-norm-s158w1,0,Control,1,Schizophrenia,0.5354170203208923,False
+sch-norm-S165W1,0,Control,1,Schizophrenia,0.5354170203208923,False
+sch-norm-S182W1,0,Control,1,Schizophrenia,0.5354172587394714,False
+sch-norm-S196W1,0,Control,1,Schizophrenia,0.5354172587394714,False
+sch-patient-156w1,1,Schizophrenia,1,Schizophrenia,0.5354172587394714,True
+sch-patient-32w1,1,Schizophrenia,1,Schizophrenia,0.535417377948761,True
+sch-patient-454-1W,1,Schizophrenia,1,Schizophrenia,0.5354170203208923,True
+sch-patient-575w1,1,Schizophrenia,1,Schizophrenia,0.5354171395301819,True
+sch-patient-s351w,1,Schizophrenia,1,Schizophrenia,0.5354170203208923,True

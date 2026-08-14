@@ -58,35 +58,55 @@ class fMRIPreprocessor:
         atlas: str = "AAL90",
     ) -> np.ndarray:
         """
-        Extract ROI timeseries from fMRI data.
+        Extract ROI timeseries from fMRI data using spatial parcellation.
 
-        Args:
-            data: fMRI data (x, y, z, time).
-            atlas: Brain atlas to use.
-
-        Returns:
-            ROI timeseries (n_rois, time).
+        Uses Nilearn AAL atlas when available; otherwise divides the volume
+        into equal spatial blocks and averages each block's timeseries.
         """
+        if data.ndim != 4:
+            raise ValueError(f"Expected 4D fMRI data, got shape {data.shape}")
+
+        n_rois = 90 if atlas == "AAL90" else 116
+
         try:
             from nilearn.datasets import fetch_atlas_aal
-            from nilearn.input_data import NiftiLabelsMasker
+            from nilearn.maskers import NiftiLabelsMasker
+            import nibabel as nib
 
-            logger.info(f"Extracting ROI timeseries using {atlas} atlas")
-            # This would require full implementation with Nilearn
-            # For now, return placeholder
-            n_rois = 90 if atlas == "AAL90" else 116
-            n_timepoints = data.shape[3] if len(data.shape) > 3 else data.shape[0]
-
-            # Generate synthetic ROI timeseries
-            roi_timeseries = np.random.randn(n_rois, n_timepoints)
-
-            logger.info(f"Extracted {n_rois} ROI timeseries")
+            atlas_data = fetch_atlas_aal()
+            atlas_img = atlas_data.maps
+            masker = NiftiLabelsMasker(labels_img=atlas_img, standardize=True)
+            data_img = nib.Nifti1Image(data, np.eye(4))
+            roi_timeseries = masker.fit_transform(data_img).T
+            logger.info("Extracted %d ROI timeseries via AAL atlas", roi_timeseries.shape[0])
             return roi_timeseries
+        except Exception as exc:
+            logger.warning("Atlas extraction unavailable (%s). Using spatial blocks.", exc)
+            return self._extract_block_timeseries(data, n_rois)
 
-        except ImportError:
-            logger.warning("Nilearn not available. Using synthetic ROI extraction.")
-            n_timepoints = data.shape[3] if len(data.shape) > 3 else data.shape[0]
-            return np.random.randn(90, n_timepoints)
+    def _extract_block_timeseries(self, data: np.ndarray, n_rois: int) -> np.ndarray:
+        """Divide the volume into spatial blocks and average each block's timeseries."""
+        x, y, z, t = data.shape
+        grid = int(np.ceil(n_rois ** (1 / 3)))
+        block_x = max(1, x // grid)
+        block_y = max(1, y // grid)
+        block_z = max(1, z // grid)
+
+        timeseries = []
+        for i in range(grid):
+            for j in range(grid):
+                for k in range(grid):
+                    if len(timeseries) >= n_rois:
+                        break
+                    xs, xe = i * block_x, min((i + 1) * block_x, x)
+                    ys, ye = j * block_y, min((j + 1) * block_y, y)
+                    zs, ze = k * block_z, min((k + 1) * block_z, z)
+                    block = data[xs:xe, ys:ye, zs:ze, :]
+                    timeseries.append(block.reshape(-1, t).mean(axis=0))
+
+        roi_timeseries = np.stack(timeseries[:n_rois], axis=0)
+        logger.info("Extracted %d block ROI timeseries", roi_timeseries.shape[0])
+        return roi_timeseries
 
     def compute_connectivity_matrix(
         self,

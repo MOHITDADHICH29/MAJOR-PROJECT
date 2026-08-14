@@ -1,69 +1,71 @@
-"""Create data splits for train/val/test."""
+"""Create stratified train/val/test splits from dataset manifest."""
+
+import logging
+import sys
+from pathlib import Path
 
 import pandas as pd
-from pathlib import Path
-import logging
+from sklearn.model_selection import train_test_split
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from src.utils.manifest import load_manifest, MANIFEST_COLUMNS
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def create_splits():
-    """Create train/val/test splits."""
-    logger.info("Creating data splits...")
+def create_splits(
+    manifest_path: Path = Path("data/metadata/dataset_manifest.csv"),
+    splits_dir: Path = Path("data/splits"),
+    train_ratio: float = 0.7,
+    val_ratio: float = 0.15,
+    seed: int = 42,
+) -> None:
+    """Create subject-level stratified splits."""
+    logger.info("Creating data splits from %s", manifest_path)
+    entries = load_manifest(manifest_path)
+    df = pd.DataFrame(entries)
 
-    # Create metadata directory
-    metadata_dir = Path("data/metadata")
-    metadata_dir.mkdir(parents=True, exist_ok=True)
-
-    splits_dir = Path("data/splits")
     splits_dir.mkdir(parents=True, exist_ok=True)
 
-    manifest_path = metadata_dir / "dataset_manifest.csv"
+    # Create composite stratification key to guarantee exact 70/15/15 for each modality and label
+    df["strat_key"] = df["dataset"].astype(str) + "_" + df["label"].astype(str)
 
-    # Create empty manifest if it doesn't exist
-    if not manifest_path.exists():
-        df_manifest = pd.DataFrame(
-            columns=[
-                "subject_id",
-                "dataset",
-                "label",
-                "eeg_path",
-                "mri_path",
-                "fmri_path",
-                "ct_path",
-                "age",
-                "sex",
-            ]
-        )
-        df_manifest.to_csv(manifest_path, index=False)
-        logger.info(f"Created empty manifest at {manifest_path}")
+    train_df, temp_df = train_test_split(
+        df,
+        test_size=(1.0 - train_ratio),
+        stratify=df["strat_key"],
+        random_state=seed,
+    )
 
-    # Create empty split files
-    for split_name in ["train", "validation", "test"]:
+    relative_val_ratio = val_ratio / (1.0 - train_ratio)
+    val_df, test_df = train_test_split(
+        temp_df,
+        test_size=(1.0 - relative_val_ratio),
+        stratify=temp_df["strat_key"],
+        random_state=seed,
+    )
+
+    train_df = train_df.drop(columns=["strat_key"])
+    val_df = val_df.drop(columns=["strat_key"])
+    test_df = test_df.drop(columns=["strat_key"])
+
+    split_map = {
+        "train": train_df,
+        "validation": val_df,
+        "test": test_df,
+    }
+
+    for split_name, split_df in split_map.items():
         split_path = splits_dir / f"{split_name}.csv"
+        split_df.to_csv(split_path, index=False)
+        logger.info("  %s: %d subjects (%.1f%%)", split_name, len(split_df), (len(split_df) / len(df)) * 100)
 
-        df_split = pd.DataFrame(
-            columns=[
-                "subject_id",
-                "dataset",
-                "label",
-                "eeg_path",
-                "mri_path",
-                "fmri_path",
-                "ct_path",
-            ]
-        )
-        df_split.to_csv(split_path, index=False)
-        logger.info(f"Created {split_name} split at {split_path}")
-
-    logger.info("\n" + "=" * 60)
-    logger.info("Split Creation Complete")
-    logger.info("=" * 60)
-    logger.info("\nNext steps:")
-    logger.info("1. Add data to data/raw/")
-    logger.info("2. Update data/metadata/dataset_manifest.csv")
-    logger.info("3. Re-run this script to populate splits")
+    logger.info("\nSplit summary:")
+    for dataset_name in df["dataset"].unique():
+        counts = df[df["dataset"] == dataset_name]["label"].value_counts().to_dict()
+        logger.info("  %s: %s", dataset_name, counts)
 
 
 if __name__ == "__main__":

@@ -73,40 +73,19 @@ class fMRIDataset(BaseDataset):
             Connectivity matrix tensor (n_rois, n_rois).
         """
         if not fmri_path:
-            # Generate synthetic fMRI for testing
-            from src.utils import SyntheticDataGenerator
+            raise ValueError("Missing fMRI path for sample")
 
-            fmri_data = SyntheticDataGenerator.generate_fmri_tensor(
-                n_samples=1,
-                n_rois=self.n_rois,
-            )
-            return fmri_data[0]
+        import nibabel as nib
 
-        try:
-            import nibabel as nib
+        nifti = nib.load(fmri_path)
+        fmri_data = nifti.get_fdata()
 
-            nifti = nib.load(fmri_path)
-            fmri_data = nifti.get_fdata()
+        if fmri_data.ndim != 4:
+            raise ValueError(f"Expected 4D fMRI volume, got shape {fmri_data.shape}")
 
-            # Extract ROI timeseries (simplified)
-            if fmri_data.ndim == 4:  # (x, y, z, t)
-                from src.preprocessing import fMRIPreprocessor
+        from src.preprocessing import fMRIPreprocessor
 
-                preprocessor = fMRIPreprocessor(self.imaging_config)
-                roi_timeseries = preprocessor.extract_roi_timeseries(fmri_data)
-                connectivity = np.corrcoef(roi_timeseries)
-            else:
-                connectivity = np.random.randn(self.n_rois, self.n_rois)
-
-            return torch.FloatTensor(connectivity)
-
-        except Exception as e:
-            logger.warning(f"Failed to load fMRI file {fmri_path}: {e}")
-            # Return synthetic data for testing
-            from src.utils import SyntheticDataGenerator
-
-            fmri_data = SyntheticDataGenerator.generate_fmri_tensor(
-                n_samples=1,
-                n_rois=self.n_rois,
-            )
-            return fmri_data[0]
+        preprocessor = fMRIPreprocessor(self.imaging_config)
+        roi_timeseries = preprocessor.extract_roi_timeseries(fmri_data)
+        connectivity = np.corrcoef(roi_timeseries)
+        return torch.FloatTensor(connectivity)

@@ -73,39 +73,24 @@ class CTDataset(BaseDataset):
             CT tensor (1, depth, height, width).
         """
         if not ct_path:
-            # Generate synthetic CT for testing
-            from src.utils import SyntheticDataGenerator
+            raise ValueError("Missing CT path for sample")
 
-            ct_data = SyntheticDataGenerator.generate_ct_tensor(n_samples=1)
-            return ct_data[0]
+        import nibabel as nib
 
-        try:
-            import nibabel as nib
+        nifti = nib.load(ct_path)
+        ct_data = nifti.get_fdata()
 
-            nifti = nib.load(ct_path)
-            ct_data = nifti.get_fdata()
+        if ct_data.ndim == 3:
+            ct_data = np.expand_dims(ct_data, axis=0)
 
-            # Add channel dimension if needed
+        if ct_data.shape != (1, *self.target_size):
+            from src.preprocessing import resample_volume
+
+            ct_data = resample_volume(
+                ct_data[0] if ct_data.shape[0] == 1 else ct_data,
+                self.target_size,
+            )
             if ct_data.ndim == 3:
                 ct_data = np.expand_dims(ct_data, axis=0)
 
-            # Ensure correct shape
-            if ct_data.shape != (1, *self.target_size):
-                from src.preprocessing import resample_volume
-
-                ct_data = resample_volume(
-                    ct_data[0] if ct_data.shape[0] == 1 else ct_data,
-                    self.target_size,
-                )
-                if ct_data.ndim == 3:
-                    ct_data = np.expand_dims(ct_data, axis=0)
-
-            return torch.FloatTensor(ct_data)
-
-        except Exception as e:
-            logger.warning(f"Failed to load CT file {ct_path}: {e}")
-            # Return synthetic data for testing
-            from src.utils import SyntheticDataGenerator
-
-            ct_data = SyntheticDataGenerator.generate_ct_tensor(n_samples=1)
-            return ct_data[0]
+        return torch.FloatTensor(ct_data)

@@ -69,8 +69,10 @@ def validate_dataset():
     mri_dir.mkdir(parents=True, exist_ok=True)
 
     mri_files = list(mri_dir.glob("*.*"))
-    if mri_files:
-        logger.info(f"✓ Found {len(mri_files)} MRI files")
+    ds_mri_files = list(Path("ds004302").glob("sub-*/anat/*T1w.nii*"))
+    all_mri = len(mri_files) + len(ds_mri_files)
+    if all_mri > 0:
+        logger.info(f"✓ Found {all_mri} MRI files ({len(mri_files)} in data/raw/mri, {len(ds_mri_files)} in ds004302)")
     else:
         logger.warning("✗ No MRI files found")
 
@@ -81,8 +83,10 @@ def validate_dataset():
     fmri_dir.mkdir(parents=True, exist_ok=True)
 
     fmri_files = list(fmri_dir.glob("*.*"))
-    if fmri_files:
-        logger.info(f"✓ Found {len(fmri_files)} fMRI files")
+    ds_fmri_files = list(Path("ds004302").glob("sub-*/func/*bold.nii*"))
+    all_fmri = len(fmri_files) + len(ds_fmri_files)
+    if all_fmri > 0:
+        logger.info(f"✓ Found {all_fmri} fMRI files ({len(fmri_files)} in data/raw/fmri, {len(ds_fmri_files)} in ds004302)")
     else:
         logger.warning("✗ No fMRI files found")
 

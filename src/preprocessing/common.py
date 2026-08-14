@@ -134,7 +134,57 @@ def pad_or_crop(
 
     result[result_slices] = volume[slices]
 
-    if is_torch:
-        result = torch.FloatTensor(result)
-
     return result
+
+
+def apply_bandpass_filter(
+    data: np.ndarray,
+    low_freq: float = 0.5,
+    high_freq: float = 45.0,
+    sampling_freq: float = 256.0,
+    order: int = 5,
+) -> np.ndarray:
+    """
+    Apply Butterworth bandpass filter to EEG signal.
+
+    Args:
+        data: Signal array (channels, timepoints).
+        low_freq: Low cutoff frequency in Hz.
+        high_freq: High cutoff frequency in Hz.
+        sampling_freq: Sampling rate in Hz.
+        order: Filter order.
+
+    Returns:
+        Filtered signal array.
+    """
+    from scipy.signal import butter, filtfilt
+
+    nyquist_freq = sampling_freq / 2.0
+    low = np.clip(low_freq / nyquist_freq, 0.001, 0.999)
+    high = np.clip(high_freq / nyquist_freq, 0.001, 0.999)
+
+    b, a = butter(order, [low, high], btype="band")
+    return filtfilt(b, a, data, axis=-1)
+
+
+def resample_signal(
+    data: np.ndarray,
+    original_freq: float = 500.0,
+    target_freq: float = 256.0,
+) -> np.ndarray:
+    """
+    Resample 1D/2D signal to target sampling frequency.
+
+    Args:
+        data: Signal array (channels, timepoints) or (timepoints,).
+        original_freq: Original sampling rate in Hz.
+        target_freq: Target sampling rate in Hz.
+
+    Returns:
+        Resampled signal array.
+    """
+    from scipy.signal import resample
+
+    num_samples = int(data.shape[-1] * target_freq / original_freq)
+    return resample(data, num_samples, axis=-1)
+

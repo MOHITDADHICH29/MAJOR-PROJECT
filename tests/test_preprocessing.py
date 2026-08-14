@@ -1,11 +1,9 @@
 """Test data preprocessing pipeline."""
 
 import pytest
-import torch
 import numpy as np
 from src.preprocessing.eeg import EEGPreprocessor
 from src.preprocessing.mri import MRIPreprocessor
-from src.utils import SyntheticDataGenerator
 
 
 class TestEEGPreprocessing:
