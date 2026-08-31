@@ -1,0 +1,16 @@
+Dataset description
+===================
+
+Details of task can be found here:
+Keane, B. P., Krekelberg, B., Mill, R. D., Silverstein, S. M., Thompson, J. L., Serody, M. R., Barch, D. M., & Cole, M. W. (2022). Dorsal attention network activity during perceptual organization is distinct in schizophrenia and predictive of cognitive disorganization. European Journal of Neuroscience, 57(3), 458–478. https://doi.org/10.1111/ejn.15889
+
+The healthy control data have been published and uploaded separately:
+Keane, B. P., Barch, D. M., Mill, R. D., Silverstein, S. M., Krekelberg, B., & Cole, M. W. (2021). Brain network mechanisms of visual shape completion. NeuroImage, 236, 118069. https://doi.org/10.1016/j.neuroimage.2021.118069
+Data set DOI: doi:10.18112/openneuro.ds003404.v1.0.2
+
+The MRI Files included are:
+A) Skull-stripped and defaced T1w and T2w structurals with a resolution of 0.8mm isotropic.
+B) 5 "task" epi files including a 10 minute rest scan - (281vol x 4 runs for the perception task, 765vol for rest)
+C) field maps (fmap) - AP/PA field map pair for the task scans and another pair for the rest scan
+
+Resting-state data were collected with an eyes open protocol.  Note that one subject, sub-B04, did not complete a resting-state scan and sub-S60 had only 751 of 765 TRs for rest.  Note also that for the structurals, the first reconstruction (rec-1) was without prescan normalize and the second reconstruction (rec-2) was with prescan normalize.  Also, the scan time stamp year has been altered for anonymization.

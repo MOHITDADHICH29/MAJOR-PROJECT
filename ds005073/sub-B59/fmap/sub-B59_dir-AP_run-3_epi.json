@@ -1,0 +1,41 @@
+{
+	"ConversionSoftware": "dicm2nii.m 20180808",
+	"SeriesNumber": 40,
+	"SeriesDescription": "cmrr_mbep2d_se_AP",
+	"ImageType": [
+		"ORIGINAL",
+		"PRIMARY",
+		"M",
+		"ND",
+		"MOSAIC"
+	],
+	"Modality": "MR",
+	"AcquisitionDateTime": "20180523174224.047500",
+	"TotalReadoutTime": 0.065247912,
+	"SliceTiming": [4.5875,0,4.7425,0.1525,4.895,0.3075,5.0475,0.46,5.2,0.6125,5.3525,0.765,5.505,0.9175,5.66,1.07,5.8125,1.225,5.965,1.3775,6.1175,1.53,6.27,1.6825,6.4225,1.835,6.5775,1.9875,6.73,2.1425,6.8825,2.295,7.035,2.4475,7.1875,2.6,7.34,2.7525,7.495,2.905,7.6475,3.06,7.8,3.2125,7.9525,3.365,8.105,3.5175,8.2575,3.67,8.4125,3.8225,8.565,3.9775,8.7175,4.13,8.87,4.2825,9.0225,4.435],
+	"RepetitionTime": 9.14,
+	"PhaseEncodingDirection": "j-",
+	"EffectiveEchoSpacing": 0.000749976,
+	"EchoTime": 0.077,
+	"PatientName": "Anon",
+	"PatientSex": "Anon",
+	"PatientAge": "Anon",
+	"PatientSize": "Anon",
+	"PatientWeight": "Anon",
+	"PatientPosition": "HFS",
+	"SliceThickness": 2.4000001,
+	"FlipAngle": 90,
+	"Manufacturer": "SIEMENS",
+	"SoftwareVersion": "syngo MR B19",
+	"MRAcquisitionType": "2D",
+	"InstitutionName": "Anon",
+	"InstitutionAddress": "Anon",
+	"DeviceSerialNumber": "35450",
+	"ScanningSequence": "EP",
+	"SequenceVariant": "SK",
+	"ScanOptions": "FS",
+	"SequenceName": "epse2d1_88",
+	"IntendedFor": [
+		"func\/sub-B59_task-rest_run-1_bold.nii.gz"
+	]
+}

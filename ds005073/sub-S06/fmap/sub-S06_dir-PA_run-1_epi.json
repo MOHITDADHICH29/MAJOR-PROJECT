@@ -1,0 +1,29 @@
+{
+  "ConversionSoftware": "dicm2nii.m 20180219",
+  "SeriesNumber": 5,
+  "SeriesDescription": "cmrr_mbep2d_se_PA",
+  "ImageType": "ORIGINAL\\PRIMARY\\M\\ND\\MOSAIC",
+  "Modality": "MR",
+  "AcquisitionDateTime": "20160814175551.665000",
+  "RepetitionTime": 9.14,
+  "PhaseEncodingDirection": "j",
+  "EchoTime": 0.077,
+  "PatientName": "Anon",
+  "PatientPosition": "HFS",
+  "SliceThickness": 2.4000001,
+  "FlipAngle": 90,
+  "Manufacturer": "SIEMENS",
+  "SoftwareVersion": "syngo MR B19",
+  "MRAcquisitionType": "2D",
+  "ScanningSequence": "EP",
+  "SequenceVariant": "SK",
+  "ScanOptions": "FS",
+  "SequenceName": "epse2d1_88",
+  "TotalReadoutTime": 0.060030139,
+  "IntendedFor": [
+    "func/sub-S06_task-viscomp_run-1_bold.nii.gz",
+    "func/sub-S06_task-viscomp_run-2_bold.nii.gz",
+    "func/sub-S06_task-viscomp_run-3_bold.nii.gz",
+    "func/sub-S06_task-viscomp_run-4_bold.nii.gz"
+  ]
+}

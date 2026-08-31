@@ -1,0 +1,23 @@
+{
+	"ConversionSoftware": "dicm2nii.m 20180219",
+	"SeriesNumber": 6,
+	"SeriesDescription": "t1_mpr_ns_sag_p2_iso_32Channel",
+	"ImageType": "ORIGINAL\\PRIMARY\\M\\ND",
+	"Modality": "MR",
+	"AcquisitionDateTime": "20160814175633.070000",
+	"RepetitionTime": 2.4,
+	"PhaseEncodingDirection": "j-",
+	"EchoTime": 0.00231,
+	"InversionTime": 1,
+	"PatientName": "Anon",
+	"PatientPosition": "HFS",
+	"SliceThickness": 0.80000001,
+	"FlipAngle": 8,
+	"Manufacturer": "SIEMENS",
+	"SoftwareVersion": "syngo MR B19",
+	"MRAcquisitionType": "3D",
+	"ScanningSequence": "GR\\IR",
+	"SequenceVariant": "SP\\MP",
+	"ScanOptions": "IR\\WE",
+	"SequenceName": "*tfl3d1_ns"
+}

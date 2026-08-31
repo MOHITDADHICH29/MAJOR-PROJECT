@@ -1,0 +1,4 @@
+{
+  "TaskName": "restingstatematrixpersubject",
+  "TaskDescription": "This provides 360x360 resting-state connectivity matrices for each of 14 bipolar disorder patients (not including one patient who did not finish the resting scan). The number of unscrubbed frames per subject is also included as well as the frame number threshold used to determine which patients had to be removed.",
+}

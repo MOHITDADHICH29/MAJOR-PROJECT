@@ -1,0 +1,4 @@
+{
+  "TaskName": "restingstatematrixpersubject",
+  "TaskDescription": "This provides a 360x360 resting-state connectivity matrix for each of 16 schizophrenia patients. The number of unscrubbed frames per subject is also included, as well as the frame number threshold that was used to determine which patients to exclude.",
+}

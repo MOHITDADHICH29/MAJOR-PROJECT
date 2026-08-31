@@ -1,0 +1,4 @@
+{
+  "TaskName": "univariateresults",
+  "TaskDescription": "This Matlab (R2020b) file provides 360 x nSub matrix, where each row corresponds to the illusory-minus-fragmented activation difference for that parcel and subject.  The subject IDs are listed in the same order, and in a separate variable.",
+}
