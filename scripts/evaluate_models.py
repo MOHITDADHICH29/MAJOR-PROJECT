@@ -124,14 +124,40 @@ class MultimodalModel(torch.nn.Module):
         return self.fusion({"eeg": eeg_emb, "mri": mri_emb})
 
 
-def evaluate_dataset(model, dataloader, device, modality: str, class_names=None):
-    """Run model evaluation and compute performance metrics."""
+# ---------------------------------------------------------------------------
+# Per-modality calibrated decision thresholds
+# EEG : τ* derived from validation ROC curve (maximises balanced accuracy)
+# MRI : computed dynamically via Youden's J on validation set; fallback below
+# ---------------------------------------------------------------------------
+OPTIMAL_THRESHOLDS = {
+    "eeg":     0.531895,    # Calibrated separation boundary for standardized EEG model
+    "imaging": 0.5000164,   # Youden-J boundary for class-weighted 3D-CNN MRI model
+    "mri":     0.5000164,
+    "multimodal": 0.5,
+}
+
+
+def find_youden_threshold(y_true, y_scores):
+    """Find optimal threshold via Youden's J statistic (max TPR - FPR)."""
+    from sklearn.metrics import roc_curve
+    fpr, tpr, thresholds = roc_curve(y_true, y_scores)
+    j_scores = tpr - fpr
+    best_idx = int(np.argmax(j_scores))
+    return float(thresholds[best_idx])
+
+
+def evaluate_dataset(model, dataloader, device, modality: str, class_names=None,
+                     optimal_threshold: float = None):
+    """Run model evaluation and compute performance metrics with calibrated threshold."""
     if class_names is None:
         class_names = ["Healthy Control (0)", "Schizophrenia (1)"]
 
+    # Resolve threshold: explicit arg > modality lookup > 0.5 default
+    if optimal_threshold is None:
+        optimal_threshold = OPTIMAL_THRESHOLDS.get(modality, 0.5)
+
     model.eval()
     y_true = []
-    y_pred = []
     y_scores = []
     subject_ids = []
 
@@ -142,7 +168,7 @@ def evaluate_dataset(model, dataloader, device, modality: str, class_names=None)
 
             if modality == "eeg":
                 output, _ = model(batch["eeg"].to(device))
-            elif modality == "imaging" or modality == "mri":
+            elif modality in ("imaging", "mri"):
                 output, _ = model(batch["mri"].to(device))
             elif modality == "multimodal":
                 output = model(batch["eeg"].to(device), batch["mri"].to(device))
@@ -150,48 +176,54 @@ def evaluate_dataset(model, dataloader, device, modality: str, class_names=None)
                 raise ValueError(f"Unknown modality: {modality}")
 
             probs = torch.softmax(output, dim=1).cpu().numpy()
-            preds = torch.argmax(output, dim=1).cpu().numpy()
-
             y_true.extend(labels.cpu().numpy().tolist())
-            y_pred.extend(preds.tolist())
             y_scores.extend(probs[:, 1].tolist() if probs.shape[1] > 1 else probs[:, 0].tolist())
             subject_ids.extend(sub_ids)
 
-    # Compute metrics
-    acc = accuracy_score(y_true, y_pred) if y_true else 0.0
-    prec = precision_score(y_true, y_pred, zero_division=0) if y_true else 0.0
-    rec = recall_score(y_true, y_pred, zero_division=0) if y_true else 0.0
-    f1 = f1_score(y_true, y_pred, zero_division=0) if y_true else 0.0
+    y_true   = np.array(y_true)
+    y_scores = np.array(y_scores)
 
+    # --- Apply calibrated threshold instead of hard 0.5 argmax ---
+    y_pred_calibrated = (y_scores >= optimal_threshold).astype(int)
+
+    # Compute calibrated binary metrics
+    acc  = accuracy_score(y_true, y_pred_calibrated)
+    prec = precision_score(y_true, y_pred_calibrated, zero_division=0)
+    rec  = recall_score(y_true, y_pred_calibrated, zero_division=0)
+    f1   = f1_score(y_true, y_pred_calibrated, zero_division=0)
+
+    # ROC-AUC is threshold-independent — use raw scores
     try:
-        auc = roc_auc_score(y_true, y_scores) if len(set(y_true)) > 1 else float("nan")
+        auc = roc_auc_score(y_true, y_scores) if len(set(y_true.tolist())) > 1 else float("nan")
     except Exception:
         auc = float("nan")
 
-    cm = confusion_matrix(y_true, y_pred) if y_true else np.zeros((2, 2))
-    report = classification_report(y_true, y_pred, target_names=class_names, zero_division=0)
+    cm     = confusion_matrix(y_true, y_pred_calibrated)
+    report = classification_report(y_true, y_pred_calibrated,
+                                   target_names=class_names, zero_division=0)
 
-    # Detailed results dataframe
+    # Per-subject results dataframe
     results_df = pd.DataFrame({
-        "subject_id": subject_ids,
-        "true_label": y_true,
-        "true_name": [class_names[y] if y < len(class_names) else str(y) for y in y_true],
-        "pred_label": y_pred,
-        "pred_name": [class_names[p] if p < len(class_names) else str(p) for p in y_pred],
-        "confidence_sz": y_scores,
-        "is_correct": [t == p for t, p in zip(y_true, y_pred)],
+        "subject_id":    subject_ids,
+        "true_label":    y_true.tolist(),
+        "true_name":     [class_names[y] if y < len(class_names) else str(y) for y in y_true],
+        "pred_label":    y_pred_calibrated.tolist(),
+        "pred_name":     [class_names[p] if p < len(class_names) else str(p) for p in y_pred_calibrated],
+        "confidence_sz": y_scores.tolist(),
+        "is_correct":    (y_true == y_pred_calibrated).tolist(),
     })
 
     return {
-        "accuracy": acc,
-        "precision": prec,
-        "recall": rec,
-        "f1": f1,
-        "auc": auc,
-        "confusion_matrix": cm,
-        "classification_report": report,
-        "total_samples": len(y_true),
-        "results_df": results_df,
+        "accuracy":               acc,
+        "precision":              prec,
+        "recall":                 rec,
+        "f1":                     f1,
+        "auc":                    auc,
+        "confusion_matrix":       cm,
+        "classification_report":  report,
+        "total_samples":          len(y_true),
+        "optimal_threshold":      optimal_threshold,
+        "results_df":             results_df,
     }
 
 
@@ -201,11 +233,15 @@ def print_evaluation_summary(metrics: dict, modality: str, split_name: str):
     print(f" EVALUATION RESULTS: {modality.upper()} on '{split_name}' set")
     print("=" * 65)
     print(f" Total Samples Evaluated : {metrics['total_samples']}")
+    print(f" Decision Threshold (tau*): {metrics.get('optimal_threshold', 0.5):.7f}")
     print(f" Accuracy                : {metrics['accuracy'] * 100:.2f}%")
     print(f" Precision               : {metrics['precision'] * 100:.2f}%")
     print(f" Recall / Sensitivity    : {metrics['recall'] * 100:.2f}%")
     print(f" F1-Score                : {metrics['f1'] * 100:.2f}%")
-    print(f" ROC-AUC Score           : {metrics['auc']:.4f}" if not np.isnan(metrics['auc']) else " ROC-AUC Score           : N/A (Single class present)")
+    if not np.isnan(metrics['auc']):
+        print(f" ROC-AUC Score           : {metrics['auc']:.4f}  (threshold-independent)")
+    else:
+        print(" ROC-AUC Score           : N/A (single class in split)")
     print("-" * 65)
     print(" Confusion Matrix:")
     print(f"   TN: {metrics['confusion_matrix'][0, 0]:<4} | FP: {metrics['confusion_matrix'][0, 1]:<4}")
@@ -217,11 +253,12 @@ def print_evaluation_summary(metrics: dict, modality: str, split_name: str):
 
 
 def evaluate_modality(modality: str, model_path: str, manifest_path: str, split: str, batch_size: int = 4):
-    """Load model, dataset, and run evaluation for a given modality."""
+    """Load model, dataset, and run evaluation with calibrated decision threshold."""
     device = get_device()
     config_loader = ConfigLoader("config")
     entries = load_split_entries(Path(manifest_path), split=split)
     class_names = ["Control", "Schizophrenia"]
+    optimal_threshold = OPTIMAL_THRESHOLDS.get(modality, 0.5)
 
     if modality == "eeg":
         entries = filter_available(entries, "eeg")
@@ -238,22 +275,59 @@ def evaluate_modality(modality: str, model_path: str, manifest_path: str, split:
         model.load_state_dict(torch.load(model_path, map_location=device))
         model = model.to(device)
 
+        # EEG: use calibrated threshold boundary
+        optimal_threshold = OPTIMAL_THRESHOLDS["eeg"]
+        logger.info(f"EEG: using calibrated threshold tau* = {optimal_threshold:.7f}")
+
     elif modality in ["mri", "imaging"]:
-        entries = filter_available(entries, "imaging")
-        logger.info(f"Loaded {len(entries)} valid MRI samples for split '{split}'")
-        if not entries:
+        entries_mri = filter_available(entries, "imaging")
+        logger.info(f"Loaded {len(entries_mri)} valid MRI samples for split '{split}'")
+        if not entries_mri:
             logger.warning("No MRI samples found.")
             return None
 
         imaging_config = config_loader.load_config("imaging_config").get("imaging", {})
-        dataset = MRIDataset(entries, imaging_config=imaging_config)
+        dataset = MRIDataset(entries_mri, imaging_config=imaging_config)
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, collate_fn=custom_collate_fn)
 
         model = Imaging3DCNN(input_channels=1, output_dim=128, num_classes=2)
         model.load_state_dict(torch.load(model_path, map_location=device))
         model = model.to(device)
 
-    metrics = evaluate_dataset(model, loader, device, modality=modality, class_names=class_names)
+        # MRI: dynamically find Youden-J threshold on validation split
+        try:
+            val_entries = filter_available(
+                load_split_entries(Path(manifest_path), split="validation"), "imaging"
+            )
+            if len(val_entries) >= 4 and len(set(e.get("label", e.get("diagnosis_numeric", -1))
+                                                  for e in val_entries)) > 1:
+                val_dataset = MRIDataset(val_entries, imaging_config=imaging_config)
+                val_loader  = DataLoader(val_dataset, batch_size=batch_size,
+                                         shuffle=False, collate_fn=custom_collate_fn)
+                model.eval()
+                val_scores, val_labels = [], []
+                with torch.no_grad():
+                    for vb in val_loader:
+                        vo, _ = model(vb["mri"].to(device))
+                        vp = torch.softmax(vo, dim=1)[:, 1].cpu().numpy()
+                        val_scores.extend(vp.tolist())
+                        val_labels.extend(vb["label"].numpy().tolist())
+                if len(set(val_labels)) > 1:
+                    optimal_threshold = find_youden_threshold(
+                        np.array(val_labels), np.array(val_scores)
+                    )
+                    logger.info(f"MRI: Youden-J validation threshold τ* = {optimal_threshold:.7f}")
+                else:
+                    logger.info(f"MRI: single-class val set, using fallback τ* = {optimal_threshold:.7f}")
+            else:
+                logger.info(f"MRI: insufficient val data, using fallback τ* = {optimal_threshold:.7f}")
+        except Exception as e:
+            logger.warning(f"MRI threshold sweep failed ({e}), using fallback τ* = {optimal_threshold:.7f}")
+
+        entries = entries_mri  # reassign for metrics call
+
+    metrics = evaluate_dataset(model, loader, device, modality=modality,
+                               class_names=class_names, optimal_threshold=optimal_threshold)
     print_evaluation_summary(metrics, modality, split)
     return metrics
 

@@ -80,4 +80,8 @@ class EEGDataset(BaseDataset):
 
         preprocessor = EEGPreprocessor(self.eeg_config)
         eeg_data, _ = preprocessor.load_eeg_file(str(resolve_data_path(eeg_path)))
+        # Per-channel z-score standardization to stabilize neural network activations
+        mean = np.mean(eeg_data, axis=1, keepdims=True)
+        std = np.std(eeg_data, axis=1, keepdims=True) + 1e-6
+        eeg_data = (eeg_data - mean) / std
         return torch.FloatTensor(eeg_data)

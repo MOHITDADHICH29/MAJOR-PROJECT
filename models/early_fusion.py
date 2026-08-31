@@ -182,10 +182,46 @@ class MRITokenizer(nn.Module):
 # Unified Transformer Backbone
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Gated Asymmetric Cross-Attention
+# ---------------------------------------------------------------------------
+
+class GatedCrossAttention(nn.Module):
+    """Asymmetric cross-attention: EEG (Query) attends to MRI (Key/Value).
+
+    Prevents noisy MRI features from degrading the clean EEG representation:
+    - EEG embeddings act as Queries (Q)
+    - MRI embeddings act as Keys (K) and Values (V)
+    - A learned tanh gate (initialized to 0.0) ensures MRI features only
+      modulate EEG with a gentle residual refinement.
+    """
+
+    def __init__(self, embed_dim: int, num_heads: int = 4, dropout: float = 0.1):
+        super().__init__()
+        self.cross_attn = nn.MultiheadAttention(
+            embed_dim, num_heads, dropout=dropout, batch_first=True
+        )
+        self.q_norm = nn.LayerNorm(embed_dim)
+        self.kv_norm = nn.LayerNorm(embed_dim)
+        self.gate = nn.Parameter(torch.zeros(1))
+
+    def forward(self, eeg_tokens: torch.Tensor, mri_tokens: torch.Tensor) -> torch.Tensor:
+        q = self.q_norm(eeg_tokens)
+        kv = self.kv_norm(mri_tokens)
+        attn_out, _ = self.cross_attn(query=q, key=kv, value=kv)
+        gamma = torch.tanh(self.gate)
+        return eeg_tokens + gamma * attn_out
+
+
+# ---------------------------------------------------------------------------
+# Transformer Backbone (Unified sequence)
+# ---------------------------------------------------------------------------
+
 class MultimodalTransformerBackbone(nn.Module):
-    """Unified Transformer encoder operating over concatenated modality tokens.
+    """Unified Transformer encoder operating over gated & concatenated modality tokens.
 
     Features:
+    - Gated asymmetric cross-attention alignment
     - Learnable [CLS] token prepended to the sequence
     - Learnable modality-type embeddings (EEG vs MRI)
     - Dynamic sinusoidal positional embeddings (supports any token length)
@@ -205,6 +241,9 @@ class MultimodalTransformerBackbone(nn.Module):
         super().__init__()
         self.embed_dim = embed_dim
         self.max_seq_len = max_seq_len
+
+        # Asymmetric cross-attention module
+        self.gated_cross_attn = GatedCrossAttention(embed_dim, num_heads=num_heads, dropout=dropout)
 
         # [CLS] token
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
@@ -255,25 +294,28 @@ class MultimodalTransformerBackbone(nn.Module):
         n_eeg = eeg_tokens.shape[1]
         n_mri = mri_tokens.shape[1]
 
-        # Add modality embeddings
+        # 1. Asymmetric cross-attention modulation (EEG guided by MRI)
+        eeg_tokens = self.gated_cross_attn(eeg_tokens, mri_tokens)
+
+        # 2. Add modality embeddings
         eeg_mod = self.modality_embed(torch.zeros(b, n_eeg, dtype=torch.long, device=eeg_tokens.device))
         mri_mod = self.modality_embed(torch.ones(b, n_mri, dtype=torch.long, device=mri_tokens.device))
         eeg_tokens = eeg_tokens + eeg_mod
         mri_tokens = mri_tokens + mri_mod
 
-        # Build sequence: [CLS] + EEG tokens + MRI tokens
+        # 3. Build sequence: [CLS] + EEG tokens + MRI tokens
         cls = self.cls_token.expand(b, -1, -1)                   # (B, 1, D)
         seq = torch.cat([cls, eeg_tokens, mri_tokens], dim=1)    # (B, 1+N_eeg+N_mri, D)
         seq_len = seq.shape[1]
 
-        # Add positional embeddings (uses learnable if within max_seq_len, else sinusoidal)
+        # 4. Add positional embeddings
         if seq_len <= self.pos_embed.shape[1]:
             seq = seq + self.pos_embed[:, :seq_len, :]
         else:
             sin_pos = get_sinusoidal_pos_embed(seq_len, self.embed_dim, seq.device)
             seq = seq + sin_pos
 
-        # Encode
+        # 5. Encode
         seq = self.pre_norm(seq)
         seq = self.encoder(seq)
         seq = self.final_norm(seq)
@@ -291,15 +333,14 @@ class MultimodalTransformerBackbone(nn.Module):
 # ---------------------------------------------------------------------------
 
 class EarlyFusionClassifier(nn.Module):
-    """End-to-end Early Fusion model for multimodal schizophrenia classification.
+    """End-to-end Early Fusion model with Gated Cross-Attention and Auxiliary Loss.
 
     Pipeline:
         raw EEG   -> EEGTokenizer  -> eeg_tokens (N_eeg tokens)
         raw MRI   -> MRITokenizer  -> mri_tokens (N_mri tokens)
-        [CLS] + eeg_tokens + mri_tokens -> TransformerBackbone -> CLS repr -> classification
+        [CLS] + GatedCrossAttn(EEG, MRI) + MRI -> TransformerBackbone -> CLS repr -> classification
 
-    Includes auxiliary per-modality losses that regularize each
-    tokenizer to independently produce discriminative features.
+    Includes asymmetric unimodal auxiliary losses and modality dropout.
     """
 
     def __init__(
@@ -326,10 +367,17 @@ class EarlyFusionClassifier(nn.Module):
         # Auxiliary losses
         use_auxiliary_losses: bool = True,
         aux_loss_weight: float = 0.3,
+        eeg_aux_weight: float = 0.5,
+        mri_aux_weight: float = 0.2,
+        # Modality dropout
+        mri_dropout_prob: float = 0.3,
     ):
         super().__init__()
         self.use_auxiliary_losses = use_auxiliary_losses
         self.aux_loss_weight = aux_loss_weight
+        self.eeg_aux_weight = eeg_aux_weight
+        self.mri_aux_weight = mri_aux_weight
+        self.mri_dropout_prob = mri_dropout_prob
 
         # Tokenizers
         self.eeg_tokenizer = EEGTokenizer(
@@ -385,17 +433,15 @@ class EarlyFusionClassifier(nn.Module):
         eeg: torch.Tensor,
         image: torch.Tensor,
     ) -> torch.Tensor:
-        """Forward pass returning main classification logits.
-
-        Args:
-            eeg:   Raw EEG tensor (B, C, T) or spectrogram (B, C, F, T).
-            image: MRI volume (B, 1, D, H, W).
-
-        Returns:
-            logits: (B, num_classes)
-        """
+        """Forward pass returning main classification logits."""
         eeg_tokens = self.eeg_tokenizer(eeg)       # (B, N_eeg, D)
         mri_tokens = self.mri_tokenizer(image)     # (B, N_mri, D)
+
+        # Modality dropout during training: randomly drop MRI tokens
+        if self.training and self.mri_dropout_prob > 0:
+            b = image.shape[0]
+            mask = (torch.rand(b, 1, 1, device=image.device) > self.mri_dropout_prob).float()
+            mri_tokens = mri_tokens * mask
 
         cls_repr, _, _ = self.backbone(eeg_tokens, mri_tokens)
         logits = self.classifier(cls_repr)
@@ -406,29 +452,24 @@ class EarlyFusionClassifier(nn.Module):
         eeg: torch.Tensor,
         image: torch.Tensor,
     ) -> Dict[str, torch.Tensor]:
-        """Forward pass returning main + auxiliary logits for training.
-
-        Args:
-            eeg:   Raw EEG tensor (B, C, T) or spectrogram (B, C, F, T).
-            image: MRI volume (B, 1, D, H, W).
-
-        Returns:
-            Dictionary with keys:
-                'logits':      (B, num_classes) -- main classifier output
-                'eeg_logits':  (B, num_classes) -- auxiliary EEG head output
-                'mri_logits':  (B, num_classes) -- auxiliary MRI head output
-        """
+        """Forward pass returning main + auxiliary logits for training."""
         eeg_tokens = self.eeg_tokenizer(eeg)       # (B, N_eeg, D)
         mri_tokens = self.mri_tokenizer(image)     # (B, N_mri, D)
+
+        # Modality dropout during training: randomly drop MRI tokens
+        if self.training and self.mri_dropout_prob > 0:
+            b = image.shape[0]
+            mask = (torch.rand(b, 1, 1, device=image.device) > self.mri_dropout_prob).float()
+            mri_tokens = mri_tokens * mask
 
         cls_repr, eeg_out, mri_out = self.backbone(eeg_tokens, mri_tokens)
 
         result = {"logits": self.classifier(cls_repr)}
 
         if self.use_auxiliary_losses:
-            # Pool per-modality tokens (mean pooling)
-            eeg_pooled = eeg_out.mean(dim=1)       # (B, D)
-            mri_pooled = mri_out.mean(dim=1)       # (B, D)
+            # Pool per-modality tokens directly
+            eeg_pooled = eeg_tokens.mean(dim=1)       # (B, D) from pure tokenizer
+            mri_pooled = mri_tokens.mean(dim=1)       # (B, D) from pure tokenizer
             result["eeg_logits"] = self.eeg_aux_head(eeg_pooled)
             result["mri_logits"] = self.mri_aux_head(mri_pooled)
 
@@ -440,25 +481,14 @@ class EarlyFusionClassifier(nn.Module):
         labels: torch.Tensor,
         criterion: nn.Module,
     ) -> Tuple[torch.Tensor, Dict[str, float]]:
-        """Compute combined loss (main + auxiliary).
-
-        Args:
-            outputs:   Dict from forward_with_aux.
-            labels:    (B,) ground truth labels.
-            criterion: Loss function (e.g. CrossEntropyLoss).
-
-        Returns:
-            total_loss: Combined scalar loss.
-            loss_dict:  Breakdown for logging.
-        """
+        """Compute combined loss with asymmetric unimodal auxiliary weighting."""
         main_loss = criterion(outputs["logits"], labels)
         loss_dict = {"main_loss": main_loss.item()}
 
         if self.use_auxiliary_losses and "eeg_logits" in outputs:
             eeg_loss = criterion(outputs["eeg_logits"], labels)
             mri_loss = criterion(outputs["mri_logits"], labels)
-            aux_loss = (eeg_loss + mri_loss) / 2.0
-            total_loss = main_loss + self.aux_loss_weight * aux_loss
+            total_loss = main_loss + self.eeg_aux_weight * eeg_loss + self.mri_aux_weight * mri_loss
             loss_dict["eeg_aux_loss"] = eeg_loss.item()
             loss_dict["mri_aux_loss"] = mri_loss.item()
             loss_dict["total_loss"] = total_loss.item()
