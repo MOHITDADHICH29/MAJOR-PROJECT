@@ -4,6 +4,13 @@ import torch
 import torch.nn as nn
 from typing import Dict, Tuple, Optional, List
 
+from ..early_fusion import (
+    EarlyFusionClassifier,
+    EEGTokenizer,
+    MRITokenizer,
+    MultimodalTransformerBackbone,
+)
+
 
 class EarlyFusion(nn.Module):
     """Early fusion by concatenating embeddings."""

@@ -19,12 +19,12 @@ def main() -> None:
     manifest_path = metadata_dir / "dataset_manifest.csv"
 
     logger.info("=" * 60)
-    logger.info("BUILDING DATASET MANIFEST (Schizophrenia + ds004302)")
+    logger.info("BUILDING DATASET MANIFEST (Schizophrenia + ds004302 + ds005073)")
     logger.info("=" * 60)
 
     entries = build_manifest(project_root)
     if not entries:
-        logger.error("No subjects found. Ensure Schizophrenia/ and ds004302/ exist.")
+        logger.error("No subjects found. Ensure Schizophrenia/, ds004302/, or ds005073/ exist.")
         sys.exit(1)
 
     write_manifest(manifest_path, entries, project_root)
@@ -34,9 +34,11 @@ def main() -> None:
     logger.info("=" * 60)
     logger.info("\nNext steps:")
     logger.info("1. Run: python scripts/download_ds004302.py")
-    logger.info("2. Run: python scripts/create_splits.py")
-    logger.info("3. Run: python scripts/train.py --modality eeg")
-    logger.info("4. Run: python scripts/train.py --modality imaging")
+    logger.info("2. Run: python scripts/download_ds005073.py")
+    logger.info("3. Run: python scripts/create_splits.py")
+    logger.info("4. Run: python scripts/train.py --modality eeg")
+    logger.info("5. Run: python scripts/train.py --modality imaging")
+    logger.info("6. Run: python scripts/train.py --modality multimodal --fusion early_fusion")
     logger.info("=" * 60)
 
 

@@ -30,6 +30,17 @@ DS004302_GROUP_LABELS = {
     "AVH+": 1,
 }
 
+# 1 = Bipolar (0: non-SZ comparator); 2 = Schizophrenia / Schizoaffective (1: patient)
+DS005073_GROUP_LABELS = {
+    "1": 0,
+    "2": 1,
+    1: 0,
+    2: 1,
+    "Bipolar": 0,
+    "Schizophrenia": 1,
+    "Schizoaffective": 1,
+}
+
 
 def _rel(project_root: Path, path: Path) -> str:
     return str(path.relative_to(project_root)).replace("\\", "/")
@@ -118,11 +129,76 @@ def build_ds004302_entries(project_root: Path, bids_root: Optional[Path] = None)
     return entries
 
 
+def build_ds005073_entries(project_root: Path, bids_root: Optional[Path] = None) -> List[Dict]:
+    """Index T1w/T2w MRI and resting-state/task fMRI from OpenNeuro ds005073."""
+    bids_root = bids_root or (project_root / "ds005073")
+    if not bids_root.exists():
+        logger.warning("ds005073 directory not found: %s", bids_root)
+        return []
+
+    participants_path = bids_root / "participants.tsv"
+    if not participants_path.exists():
+        raise FileNotFoundError(f"Missing participants.tsv in {bids_root}")
+
+    participants = pd.read_csv(participants_path, sep="\t", dtype=str)
+    participants = participants.dropna(subset=["participant_id"])
+    entries: List[Dict] = []
+
+    for _, row in participants.iterrows():
+        subject_id = str(row["participant_id"]).strip()
+        if not subject_id or subject_id == "nan":
+            continue
+        group = str(row.get("groupID", "")).strip()
+        label = DS005073_GROUP_LABELS.get(group)
+        if label is None:
+            if subject_id.startswith("sub-S"):
+                label = 1
+            elif subject_id.startswith("sub-B"):
+                label = 0
+            else:
+                logger.warning("Skipping %s: unknown group %r", subject_id, group)
+                continue
+
+        subject_dir = bids_root / subject_id
+        mri_candidates = [
+            p for p in (
+                list((subject_dir / "anat").glob(f"{subject_id}_*T1w.nii.gz"))
+                + list((subject_dir / "anat").glob(f"{subject_id}_*T2w.nii.gz"))
+                + list((subject_dir / "anat").glob(f"{subject_id}_*T1w.nii"))
+            )
+            if not p.name.endswith(".part") and not p.name.startswith(".tmp")
+        ]
+        fmri_candidates = [
+            p for p in list((subject_dir / "func").glob(f"{subject_id}_task-*_bold.nii*"))
+            if not p.name.endswith(".part") and not p.name.startswith(".tmp")
+        ]
+
+        mri_path = _rel(project_root, mri_candidates[0]) if mri_candidates else ""
+        fmri_path = _rel(project_root, fmri_candidates[0]) if fmri_candidates else ""
+
+        entries.append(
+            {
+                "subject_id": subject_id,
+                "dataset": "ds005073",
+                "label": label,
+                "eeg_path": "",
+                "mri_path": mri_path,
+                "fmri_path": fmri_path,
+                "ct_path": "",
+                "age": str(row.get("age", "")).strip() if pd.notna(row.get("age")) else "",
+                "sex": str(row.get("gender", "")).strip() if pd.notna(row.get("gender")) else "",
+            }
+        )
+
+    return entries
+
+
 def build_manifest(project_root: Optional[Path] = None) -> List[Dict]:
-    """Build combined manifest from Schizophrenia EEG and ds004302 neuroimaging."""
+    """Build combined manifest from Schizophrenia EEG, ds004302, and ds005073 neuroimaging."""
     project_root = project_root or Path(__file__).resolve().parents[2]
     entries = build_schizophrenia_entries(project_root)
     entries.extend(build_ds004302_entries(project_root))
+    entries.extend(build_ds005073_entries(project_root))
     return entries
 
 
@@ -154,8 +230,9 @@ def write_manifest(
     logger.info("  Total: %d", len(entries))
 
 
-def load_manifest(manifest_path: Path) -> List[Dict]:
+def load_manifest(manifest_path: Path | str) -> List[Dict]:
     """Load manifest CSV into list of dicts with typed label."""
+    manifest_path = Path(manifest_path)
     if not manifest_path.exists():
         raise FileNotFoundError(
             f"Dataset manifest not found: {manifest_path}. "

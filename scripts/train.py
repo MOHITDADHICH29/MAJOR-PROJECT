@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from models.eeg import EEG1DCNN
 from models.imaging import Imaging3DCNN
-from models.fusion import LateFusion
+from models.fusion import LateFusion, EarlyFusionClassifier
 from src.datasets.eeg_dataset import EEGDataset
 from src.datasets.mri_dataset import MRIDataset
 from src.datasets.multimodal_dataset import MultimodalDataset
@@ -112,14 +112,21 @@ def train_epoch(model, loader, criterion, optimizer, device, modality):
 
         if modality == "eeg":
             output, _ = model(batch["eeg"].to(device))
+            loss = criterion(output, labels)
         elif modality == "imaging":
             output, _ = model(batch["mri"].to(device))
+            loss = criterion(output, labels)
         else:
-            eeg_out, eeg_emb = model.eeg_model(batch["eeg"].to(device))
-            mri_out, mri_emb = model.mri_model(batch["mri"].to(device))
-            output = model.fusion({"eeg": eeg_emb, "mri": mri_emb})
+            if hasattr(model, "forward_with_aux"):
+                outputs = model.forward_with_aux(batch["eeg"].to(device), batch["mri"].to(device))
+                loss, _ = model.compute_loss(outputs, labels, criterion)
+                output = outputs["logits"]
+            else:
+                eeg_out, eeg_emb = model.eeg_model(batch["eeg"].to(device))
+                mri_out, mri_emb = model.mri_model(batch["mri"].to(device))
+                output = model.fusion({"eeg": eeg_emb, "mri": mri_emb})
+                loss = criterion(output, labels)
 
-        loss = criterion(output, labels)
         loss.backward()
         optimizer.step()
 
@@ -147,9 +154,12 @@ def evaluate(model, loader, criterion, device, modality):
             elif modality == "imaging":
                 output, _ = model(batch["mri"].to(device))
             else:
-                eeg_out, eeg_emb = model.eeg_model(batch["eeg"].to(device))
-                mri_out, mri_emb = model.mri_model(batch["mri"].to(device))
-                output = model.fusion({"eeg": eeg_emb, "mri": mri_emb})
+                if hasattr(model, "forward_with_aux"):
+                    output = model(batch["eeg"].to(device), batch["mri"].to(device))
+                else:
+                    eeg_out, eeg_emb = model.eeg_model(batch["eeg"].to(device))
+                    mri_out, mri_emb = model.mri_model(batch["mri"].to(device))
+                    output = model.fusion({"eeg": eeg_emb, "mri": mri_emb})
 
             loss = criterion(output, labels)
             total_loss += loss.item()
@@ -213,6 +223,12 @@ def main():
         default="eeg",
         choices=["eeg", "imaging", "multimodal"],
     )
+    parser.add_argument(
+        "--fusion",
+        default="early_fusion",
+        choices=["early_fusion", "late_fusion"],
+        help="Fusion strategy for multimodal: 'early_fusion' (unified Transformer) or 'late_fusion'",
+    )
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--lr", type=float, default=0.0001)
@@ -243,7 +259,7 @@ def main():
             "Run: python scripts/prepare_real_data.py && python scripts/create_splits.py"
         )
 
-    logger.info("Training %s on real data", args.modality)
+    logger.info("Training %s on real data (fusion=%s)", args.modality, args.fusion if args.modality == "multimodal" else "N/A")
     logger.info("  Train: %d subjects", len(train_entries))
     logger.info("  Val:   %d subjects", len(val_entries))
     logger.info("  Test:  %d subjects", len(test_entries))
@@ -288,10 +304,27 @@ def main():
             if test_entries
             else None
         )
-        eeg_model = EEG1DCNN(input_channels=19, output_dim=128, num_classes=2)
-        mri_model = Imaging3DCNN(input_channels=1, output_dim=128, num_classes=2)
-        fusion = LateFusion({"eeg": 128, "mri": 128}, fusion_dim=256, num_classes=2)
-        model = MultimodalModel(eeg_model, mri_model, fusion).to(device)
+        if args.fusion == "early_fusion":
+            model = EarlyFusionClassifier(
+                eeg_channels=19,
+                eeg_cnn_channels=(64, 128, 256),
+                mri_in_channels=1,
+                mri_cnn_channels=(32, 64, 128, 256),
+                embed_dim=256,
+                transformer_depth=4,
+                transformer_heads=4,
+                ffn_dim=512,
+                dropout=0.1,
+                use_auxiliary_losses=True,
+                aux_loss_weight=0.3,
+            ).to(device)
+            logger.info("Instantiated EarlyFusionClassifier with unified Transformer backbone.")
+        else:
+            eeg_model = EEG1DCNN(input_channels=19, output_dim=128, num_classes=2)
+            mri_model = Imaging3DCNN(input_channels=1, output_dim=128, num_classes=2)
+            fusion = LateFusion({"eeg": 128, "mri": 128}, fusion_dim=256, num_classes=2)
+            model = MultimodalModel(eeg_model, mri_model, fusion).to(device)
+            logger.info("Instantiated LateFusion MultimodalModel.")
 
     train_loader = DataLoader(
         train_dataset,
@@ -323,13 +356,23 @@ def main():
         else None
     )
 
-    criterion = FocalLoss(alpha=0.25, gamma=2.0)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
+    labels = [int(e["label"]) for e in train_entries]
+    n_0 = sum(1 for l in labels if l == 0)
+    n_1 = sum(1 for l in labels if l == 1)
+    total = len(labels)
+    w0 = total / (2.0 * max(n_0, 1))
+    w1 = total / (2.0 * max(n_1, 1))
+    class_weights = torch.tensor([w0, w1], dtype=torch.float32).to(device)
+    logger.info("Training Class Distribution: Controls(0)=%d, Patients(1)=%d", n_0, n_1)
+    logger.info("Applied Inverse Frequency Class Weights: [Control: %.4f, Schizophrenia: %.4f]", w0, w1)
+
+    criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-3)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
 
     checkpoint_dir = Path("models/checkpoints")
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
-    best_val_acc = -1.0
+    best_val_f1 = -1.0
     best_val_metrics = {}
 
     for epoch in range(args.epochs):
@@ -342,9 +385,10 @@ def main():
             val_loss = val_metrics["loss"]
             val_acc = val_metrics["accuracy"]
             val_f1 = val_metrics["f1"]
+            val_auc = val_metrics["auc"]
 
             logger.info(
-                "Epoch %3d/%d | Train Loss: %.4f | Train Acc: %.4f | Val Loss: %.4f | Val Acc: %.4f | Val F1: %.4f",
+                "Epoch %3d/%d | Train Loss: %.4f | Train Acc: %.4f | Val Loss: %.4f | Val Acc: %.4f | Val F1: %.4f | Val AUC: %.4f",
                 epoch + 1,
                 args.epochs,
                 train_loss,
@@ -352,11 +396,16 @@ def main():
                 val_loss,
                 val_acc,
                 val_f1,
+                val_auc,
             )
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
+            # Track best based on balanced F1 and accuracy
+            score = (val_f1 + val_acc) / 2.0
+            if score > best_val_f1:
+                best_val_f1 = score
                 best_val_metrics = val_metrics
                 torch.save(model.state_dict(), checkpoint_dir / f"{args.modality}_model_best.pt")
+                if args.modality == "imaging":
+                    torch.save(model.state_dict(), checkpoint_dir / "imaging_model_best.pt")
         else:
             logger.info(
                 "Epoch %3d/%d | Train Loss: %.4f | Train Acc: %.4f",
@@ -369,7 +418,7 @@ def main():
         scheduler.step()
 
     torch.save(model.state_dict(), checkpoint_dir / f"{args.modality}_model_final.pt")
-    logger.info("Training complete. Best Validation Accuracy: %.4f", max(best_val_acc, 0.0))
+    logger.info("Training complete. Best Validation Score: %.4f", max(best_val_f1, 0.0))
 
     if test_loader:
         # Load best model for test evaluation

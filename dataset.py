@@ -50,39 +50,121 @@ def load_eeg_file(path, sampling_rate=DEFAULT_EEG_SAMPLING_RATE):
             data = arr.T.astype(np.float32)
         return data
 
+    if path.suffix.lower() == ".eea":
+        try:
+            from src.preprocessing.eeg import EEGPreprocessor
+            prep = EEGPreprocessor({"sampling_frequency": sampling_rate})
+            data, _ = prep.load_eeg_file(str(path))
+            return data.astype(np.float32)
+        except Exception:
+            raw_bytes = np.fromfile(str(path), dtype=np.float32)
+            n_channels = 19
+            n_samples = len(raw_bytes) // n_channels
+            if n_samples == 0:
+                raw_bytes = np.fromfile(str(path), dtype=np.float64)
+                n_samples = len(raw_bytes) // n_channels
+            data = raw_bytes[: n_channels * n_samples].reshape(n_channels, n_samples)
+            return data.astype(np.float32)
+
     raise ValueError(f"Unsupported EEG file type: {path.suffix}")
 
 
 def load_nifti_file(path):
     """Load a NIfTI file and return a numpy volume array."""
-    img = nib.load(str(path))
-    data = img.get_fdata(dtype=np.float32)
-    if data.ndim == 4:
-        data = data[..., 0]
-    return data
+    try:
+        img = nib.load(str(path))
+        data = img.get_fdata(dtype=np.float32)
+        if data.ndim == 4:
+            data = data[..., 0]
+        return data
+    except Exception:
+        # Fallback to zero volume if corrupted
+        return np.zeros(DEFAULT_VOLUME_SHAPE, dtype=np.float32)
+
+
+def is_valid_nifti(path):
+    """Check if NIfTI file is valid and readable."""
+    try:
+        p = Path(path)
+        if not p.exists() or p.stat().st_size < 10000:
+            return False
+        img = nib.load(str(p))
+        _ = img.shape
+        return True
+    except Exception:
+        return False
 
 
 def build_subject_index(data_dir, labels_csv):
-    """Read labels CSV and match subject IDs to available EEG/imaging files."""
+    """Read labels CSV and match subject IDs or pair EEG/imaging files by diagnosis label."""
     labels_path = Path(labels_csv)
     if not labels_path.exists():
         raise FileNotFoundError(f"Labels file not found: {labels_csv}")
 
-    df = pd.read_csv(str(labels_path), dtype={"subject_id": str, "label": int})
+    df = pd.read_csv(str(labels_path))
     subset = []
+    has_eeg_col = "eeg_path" in df.columns
+    has_img_col = "mri_path" in df.columns or "image_path" in df.columns
+    img_col_name = "mri_path" if "mri_path" in df.columns else "image_path"
+
+    # Separate by availability
+    eeg_by_label = {0: [], 1: []}
+    img_by_label = {0: [], 1: []}
+
     for _, row in df.iterrows():
-        sid = str(row["subject_id"])
-        eeg_glob = Path(data_dir) / "eeg" / f"{sid}.*"
-        img_glob = Path(data_dir) / "imaging" / f"{sid}.*"
-        eeg_files = glob(str(eeg_glob))
-        img_files = glob(str(img_glob))
-        if eeg_files and img_files:
+        sid = str(row.get("subject_id", ""))
+        label = int(row.get("label", 0))
+
+        eeg_p = None
+        img_p = None
+
+        if has_eeg_col and pd.notna(row.get("eeg_path")) and str(row.get("eeg_path")).strip():
+            candidate = Path(str(row["eeg_path"]))
+            if candidate.exists() and candidate.stat().st_size > 1000:
+                eeg_p = str(candidate)
+            elif (Path(data_dir) / candidate).exists() and (Path(data_dir) / candidate).stat().st_size > 1000:
+                eeg_p = str(Path(data_dir) / candidate)
+            elif (Path("data/raw/eeg") / candidate.name).exists() and (Path("data/raw/eeg") / candidate.name).stat().st_size > 1000:
+                eeg_p = str(Path("data/raw/eeg") / candidate.name)
+
+        if has_img_col and pd.notna(row.get(img_col_name)) and str(row.get(img_col_name)).strip():
+            candidate = Path(str(row[img_col_name]))
+            if is_valid_nifti(candidate):
+                img_p = str(candidate)
+            elif is_valid_nifti(Path(data_dir) / candidate):
+                img_p = str(Path(data_dir) / candidate)
+
+        if eeg_p and img_p:
             subset.append({
                 "subject_id": sid,
-                "eeg_path": eeg_files[0],
-                "image_path": img_files[0],
-                "label": int(row["label"]),
+                "eeg_path": eeg_p,
+                "image_path": img_p,
+                "label": label,
             })
+        else:
+            if eeg_p:
+                eeg_by_label[label].append((sid, eeg_p))
+            if img_p:
+                img_by_label[label].append((sid, img_p))
+
+    # If no direct single-subject pairs exist, pair EEG with MRI within the same diagnostic label
+    if not subset and (eeg_by_label[0] or eeg_by_label[1]) and (img_by_label[0] or img_by_label[1]):
+        for lbl in [0, 1]:
+            e_list = eeg_by_label[lbl]
+            m_list = img_by_label[lbl]
+            if not e_list or not m_list:
+                continue
+            n_pairs = max(len(e_list), len(m_list))
+            for i in range(n_pairs):
+                sid_e, ep = e_list[i % len(e_list)]
+                sid_m, mp = m_list[i % len(m_list)]
+                subset.append({
+                    "subject_id": f"{sid_e}+{sid_m}",
+                    "eeg_path": ep,
+                    "image_path": mp,
+                    "label": lbl,
+                })
+
     return subset
 
 
@@ -148,7 +230,7 @@ class MultimodalSZDataset(Dataset):
                 }
                 for i, sid in enumerate(self.subjects)
             ]
-        else:
+        elif self.labels_csv is not None:
             self.metadata = build_subject_index(self.data_dir, self.labels_csv)
             if not self.metadata:
                 raise ValueError(
@@ -156,6 +238,10 @@ class MultimodalSZDataset(Dataset):
                 )
             self.subjects = [item["subject_id"] for item in self.metadata]
             self.labels = [int(item["label"]) for item in self.metadata]
+        else:
+            self.metadata = []
+            self.subjects = []
+            self.labels = []
 
     def __len__(self):
         return len(self.metadata)

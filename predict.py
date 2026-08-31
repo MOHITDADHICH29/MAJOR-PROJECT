@@ -11,6 +11,7 @@ from models import (
     ImagingFeatureExtractor,
     MultimodalSZClassifier,
 )
+from models.early_fusion import EarlyFusionClassifier
 
 
 def parse_args():
@@ -24,25 +25,66 @@ def parse_args():
 
 
 def load_model(checkpoint_path, device):
+    """Load model from checkpoint, auto-detecting the architecture."""
     checkpoint = torch.load(checkpoint_path, map_location=device)
-    args = checkpoint.get("args", {})
+    saved_args = checkpoint.get("args", {})
+    architecture = saved_args.get("architecture", "early_fusion")
 
-    eeg_extractor = EEGFeatureExtractor()
-    imaging_extractor = ImagingFeatureExtractor(backbone=args.get("imaging_backbone", "cnn3d"))
-    fusion_module = FusionModule(strategy=args.get("fusion_type", "concat"))
-    classifier = Classifier(classifier_type=args.get("classifier_type", "mlp"))
-    model = MultimodalSZClassifier(
-        eeg_extractor=eeg_extractor,
-        imaging_extractor=imaging_extractor,
-        fusion_module=fusion_module,
-        classifier=classifier,
-    ).to(device)
+    if architecture == "early_fusion":
+        # Detect EEG channels from checkpoint weights if available
+        eeg_channels = saved_args.get("eeg_channels", 19)
+        if "model_state_dict" in checkpoint:
+            for k in ["eeg_tokenizer.cnn.0.weight", "eeg_extractor.cnn.0.weight"]:
+                if k in checkpoint["model_state_dict"]:
+                    eeg_channels = checkpoint["model_state_dict"][k].shape[1]
+                    break
+
+        model = EarlyFusionClassifier(
+            eeg_channels=eeg_channels,
+            eeg_cnn_channels=(64, 128, 256),
+            eeg_target_tokens=64,
+            use_spectrogram=False,
+            mri_in_channels=1,
+            mri_cnn_channels=(32, 64, 128, 256),
+            mri_target_tokens=64,
+            embed_dim=saved_args.get("embed_dim", 256),
+            transformer_depth=saved_args.get("transformer_depth", 4),
+            transformer_heads=saved_args.get("transformer_heads", 4),
+            ffn_dim=saved_args.get("ffn_dim", 512),
+            dropout=saved_args.get("dropout", 0.1),
+            num_classes=2,
+            classifier_hidden=128,
+            use_auxiliary_losses=True,
+            aux_loss_weight=saved_args.get("aux_loss_weight", 0.3),
+        ).to(device)
+        print(f"[INFO] Loaded EarlyFusionClassifier from checkpoint (eeg_channels={eeg_channels})")
+    else:
+        # Legacy Late Fusion
+        eeg_extractor = EEGFeatureExtractor()
+        imaging_extractor = ImagingFeatureExtractor(
+            backbone=saved_args.get("imaging_backbone", "cnn3d")
+        )
+        fusion_module = FusionModule(
+            strategy=saved_args.get("fusion_type", "concat")
+        )
+        classifier = Classifier(
+            classifier_type=saved_args.get("classifier_type", "mlp")
+        )
+        model = MultimodalSZClassifier(
+            eeg_extractor=eeg_extractor,
+            imaging_extractor=imaging_extractor,
+            fusion_module=fusion_module,
+            classifier=classifier,
+        ).to(device)
+        print(f"[INFO] Loaded LateFusion MultimodalSZClassifier from checkpoint")
+
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     return model
 
 
 def predict_single(model, eeg_tensor, image_tensor, device):
+    """Run inference on a single subject."""
     eeg = eeg_tensor.unsqueeze(0).to(device)
     image = image_tensor.unsqueeze(0).to(device)
     with torch.no_grad():
