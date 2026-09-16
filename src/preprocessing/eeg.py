@@ -54,6 +54,9 @@ class EEGPreprocessor:
             return self._load_fif(file_path)
         elif file_ext == ".eea":
             return self._load_eea(file_path)
+        elif file_ext == ".npy":
+            data = np.load(str(file_path)).astype(np.float32)
+            return data, self.sampling_freq
         elif file_ext in [".csv", ".tsv"]:
             return self._load_csv_tsv(file_path)
         else:

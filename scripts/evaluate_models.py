@@ -279,6 +279,72 @@ def evaluate_modality(modality: str, model_path: str, manifest_path: str, split:
         optimal_threshold = OPTIMAL_THRESHOLDS["eeg"]
         logger.info(f"EEG: using calibrated threshold tau* = {optimal_threshold:.7f}")
 
+    elif modality in ["eeg_spectral", "spectral"]:
+        from scripts.train_spectral_eeg import DeepSpectralClassifier, extract_spectral_biomarkers
+        from src.utils.paths import resolve_data_path
+
+        entries_eeg = filter_available(entries, "eeg")
+        logger.info(f"Loaded {len(entries_eeg)} valid EEG samples for split '{split}'")
+        if not entries_eeg:
+            logger.warning("No EEG samples found.")
+            return None
+
+        ckpt = torch.load(model_path, map_location="cpu", weights_only=False)
+        scaler = ckpt["scaler"]
+        model = DeepSpectralClassifier(in_features=166)
+        model.load_state_dict(ckpt["model_state"])
+        model.eval()
+
+        all_preds = []
+        all_probs = []
+        all_targets = []
+        subject_ids = []
+
+        optimal_threshold = 0.50
+        for entry in entries_eeg:
+            p = resolve_data_path(entry["eeg_path"])
+            d = np.load(str(p))
+            feats = extract_spectral_biomarkers(d).reshape(1, -1)
+            feats_s = scaler.transform(feats)
+            with torch.no_grad():
+                out = model(torch.from_numpy(feats_s).float())
+                prob = float(torch.softmax(out, dim=1)[:, 1].numpy()[0])
+            pred = int(prob >= optimal_threshold)
+            all_probs.append(prob)
+            all_preds.append(pred)
+            all_targets.append(entry["label"])
+            subject_ids.append(entry["subject_id"])
+
+        acc = accuracy_score(all_targets, all_preds)
+        prec = precision_score(all_targets, all_preds, zero_division=0)
+        rec = recall_score(all_targets, all_preds, zero_division=0)
+        f1 = f1_score(all_targets, all_preds, zero_division=0)
+        try:
+            auc = roc_auc_score(all_targets, all_probs)
+        except Exception:
+            auc = float("nan")
+        cm = confusion_matrix(all_targets, all_preds)
+        rep = classification_report(all_targets, all_preds, target_names=class_names, digits=4, zero_division=0)
+
+        results_df = pd.DataFrame({
+            "subject_id": subject_ids,
+            "actual_label": all_targets,
+            "predicted_label": all_preds,
+            "sz_probability": all_probs,
+        })
+        return {
+            "total_samples": len(all_targets),
+            "accuracy": acc,
+            "precision": prec,
+            "recall": rec,
+            "f1": f1,
+            "auc": auc,
+            "confusion_matrix": cm,
+            "classification_report": rep,
+            "results_df": results_df,
+            "optimal_threshold": optimal_threshold,
+        }
+
     elif modality in ["mri", "imaging"]:
         entries_mri = filter_available(entries, "imaging")
         logger.info(f"Loaded {len(entries_mri)} valid MRI samples for split '{split}'")
@@ -368,7 +434,16 @@ def main():
     set_seed(42)
 
     results = {}
-    if args.modality in ["eeg", "both"]:
+    if args.modality in ["eeg_spectral", "spectral"]:
+        spectral_model_path = args.eeg_model if "spectral" in args.eeg_model else "models/checkpoints/eeg_spectral_model_best.pt"
+        if Path(spectral_model_path).exists():
+            print(f"\nEvaluating Deep Spectral EEG Model from: {spectral_model_path}")
+            spectral_res = evaluate_modality("eeg_spectral", spectral_model_path, args.manifest, args.split, args.batch_size)
+            results["eeg_spectral"] = spectral_res
+        else:
+            logger.warning(f"Spectral checkpoint not found at: {spectral_model_path}")
+
+    elif args.modality in ["eeg", "both"]:
         if Path(args.eeg_model).exists():
             print(f"\nEvaluating EEG Model from: {args.eeg_model}")
             eeg_res = evaluate_modality("eeg", args.eeg_model, args.manifest, args.split, args.batch_size)

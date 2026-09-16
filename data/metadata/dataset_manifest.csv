@@ -1,88 +1,128 @@
 subject_id,dataset,label,eeg_path,mri_path,fmri_path,ct_path,age,sex
-sch-norm-S10W1,Schizophrenia,0,Schizophrenia/norm/S10W1.eea,,,,,
-sch-norm-s12w1,Schizophrenia,0,Schizophrenia/norm/s12w1.eea,,,,,
-sch-norm-s152w1,Schizophrenia,0,Schizophrenia/norm/s152w1.eea,,,,,
-sch-norm-S153W1,Schizophrenia,0,Schizophrenia/norm/S153W1.eea,,,,,
-sch-norm-S154W1,Schizophrenia,0,Schizophrenia/norm/S154W1.eea,,,,,
-sch-norm-S155W1,Schizophrenia,0,Schizophrenia/norm/S155W1.eea,,,,,
-sch-norm-s157w1,Schizophrenia,0,Schizophrenia/norm/s157w1.eea,,,,,
-sch-norm-s158w1,Schizophrenia,0,Schizophrenia/norm/s158w1.eea,,,,,
-sch-norm-S163W1,Schizophrenia,0,Schizophrenia/norm/S163W1.eea,,,,,
-sch-norm-S164W1,Schizophrenia,0,Schizophrenia/norm/S164W1.eea,,,,,
-sch-norm-S165W1,Schizophrenia,0,Schizophrenia/norm/S165W1.eea,,,,,
-sch-norm-S167W1,Schizophrenia,0,Schizophrenia/norm/S167W1.eea,,,,,
-sch-norm-S169W,Schizophrenia,0,Schizophrenia/norm/S169W.eea,,,,,
-sch-norm-s170w1,Schizophrenia,0,Schizophrenia/norm/s170w1.eea,,,,,
-sch-norm-s173w1,Schizophrenia,0,Schizophrenia/norm/s173w1.eea,,,,,
-sch-norm-S174W1,Schizophrenia,0,Schizophrenia/norm/S174W1.eea,,,,,
-sch-norm-s176w1,Schizophrenia,0,Schizophrenia/norm/s176w1.eea,,,,,
-sch-norm-S177W1,Schizophrenia,0,Schizophrenia/norm/S177W1.eea,,,,,
-sch-norm-s178w1,Schizophrenia,0,Schizophrenia/norm/s178w1.eea,,,,,
-sch-norm-S179W1,Schizophrenia,0,Schizophrenia/norm/S179W1.eea,,,,,
-sch-norm-S182W1,Schizophrenia,0,Schizophrenia/norm/S182W1.eea,,,,,
-sch-norm-S18W1,Schizophrenia,0,Schizophrenia/norm/S18W1.eea,,,,,
-sch-norm-S196W1,Schizophrenia,0,Schizophrenia/norm/S196W1.eea,,,,,
-sch-norm-s20w1,Schizophrenia,0,Schizophrenia/norm/s20w1.eea,,,,,
-sch-norm-S26W1,Schizophrenia,0,Schizophrenia/norm/S26W1.eea,,,,,
-sch-norm-s27w1,Schizophrenia,0,Schizophrenia/norm/s27w1.eea,,,,,
-sch-norm-S31W,Schizophrenia,0,Schizophrenia/norm/S31W.eea,,,,,
-sch-norm-S42W1,Schizophrenia,0,Schizophrenia/norm/S42W1.eea,,,,,
-sch-norm-s43w1,Schizophrenia,0,Schizophrenia/norm/s43w1.eea,,,,,
-sch-norm-S47W1,Schizophrenia,0,Schizophrenia/norm/S47W1.eea,,,,,
-sch-norm-S50W,Schizophrenia,0,Schizophrenia/norm/S50W.eea,,,,,
-sch-norm-s53w1,Schizophrenia,0,Schizophrenia/norm/s53w1.eea,,,,,
-sch-norm-S55W1,Schizophrenia,0,Schizophrenia/norm/S55W1.eea,,,,,
-sch-norm-S59LW,Schizophrenia,0,Schizophrenia/norm/S59LW.eea,,,,,
-sch-norm-S60W,Schizophrenia,0,Schizophrenia/norm/S60W.eea,,,,,
-sch-norm-S72W1,Schizophrenia,0,Schizophrenia/norm/S72W1.eea,,,,,
-sch-norm-S78W,Schizophrenia,0,Schizophrenia/norm/S78W.eea,,,,,
-sch-norm-S85W1,Schizophrenia,0,Schizophrenia/norm/S85W1.eea,,,,,
-sch-norm-s94w1,Schizophrenia,0,Schizophrenia/norm/s94w1.eea,,,,,
-sch-patient-022w1,Schizophrenia,1,Schizophrenia/sch/022w1.eea,,,,,
-sch-patient-088w1,Schizophrenia,1,Schizophrenia/sch/088w1.eea,,,,,
-sch-patient-103w,Schizophrenia,1,Schizophrenia/sch/103w.eea,,,,,
-sch-patient-113w1,Schizophrenia,1,Schizophrenia/sch/113w1.eea,,,,,
-sch-patient-155w1,Schizophrenia,1,Schizophrenia/sch/155w1.eea,,,,,
-sch-patient-156w1,Schizophrenia,1,Schizophrenia/sch/156w1.eea,,,,,
-sch-patient-192w,Schizophrenia,1,Schizophrenia/sch/192w.eea,,,,,
-sch-patient-219w1,Schizophrenia,1,Schizophrenia/sch/219w1.eea,,,,,
-sch-patient-221w,Schizophrenia,1,Schizophrenia/sch/221w.eea,,,,,
-sch-patient-249w1,Schizophrenia,1,Schizophrenia/sch/249w1.eea,,,,,
-sch-patient-276w1,Schizophrenia,1,Schizophrenia/sch/276w1.eea,,,,,
-sch-patient-307w1,Schizophrenia,1,Schizophrenia/sch/307w1.eea,,,,,
-sch-patient-312w1,Schizophrenia,1,Schizophrenia/sch/312w1.eea,,,,,
-sch-patient-314w1,Schizophrenia,1,Schizophrenia/sch/314w1.eea,,,,,
-sch-patient-32w1,Schizophrenia,1,Schizophrenia/sch/32w1.eea,,,,,
-sch-patient-33w1,Schizophrenia,1,Schizophrenia/sch/33w1.eea,,,,,
-sch-patient-342mw1,Schizophrenia,1,Schizophrenia/sch/342mw1.eea,,,,,
-sch-patient-382w1,Schizophrenia,1,Schizophrenia/sch/382w1.eea,,,,,
-sch-patient-387-02w1,Schizophrenia,1,Schizophrenia/sch/387-02w1.eea,,,,,
-sch-patient-387-03w1,Schizophrenia,1,Schizophrenia/sch/387-03w1.eea,,,,,
-sch-patient-401w1,Schizophrenia,1,Schizophrenia/sch/401w1.eea,,,,,
-sch-patient-423w,Schizophrenia,1,Schizophrenia/sch/423w.eea,,,,,
-sch-patient-429w1,Schizophrenia,1,Schizophrenia/sch/429w1.eea,,,,,
-sch-patient-454-1W,Schizophrenia,1,Schizophrenia/sch/454-1W.eea,,,,,
-sch-patient-485w1,Schizophrenia,1,Schizophrenia/sch/485w1.eea,,,,,
-sch-patient-508w1,Schizophrenia,1,Schizophrenia/sch/508w1.eea,,,,,
-sch-patient-509w1,Schizophrenia,1,Schizophrenia/sch/509w1.eea,,,,,
-sch-patient-510-1W,Schizophrenia,1,Schizophrenia/sch/510-1W.eea,,,,,
-sch-patient-515w1,Schizophrenia,1,Schizophrenia/sch/515w1.eea,,,,,
-sch-patient-517w1,Schizophrenia,1,Schizophrenia/sch/517w1.eea,,,,,
-sch-patient-540w1,Schizophrenia,1,Schizophrenia/sch/540w1.eea,,,,,
-sch-patient-548w,Schizophrenia,1,Schizophrenia/sch/548w.eea,,,,,
-sch-patient-573w1,Schizophrenia,1,Schizophrenia/sch/573w1.eea,,,,,
-sch-patient-575w1,Schizophrenia,1,Schizophrenia/sch/575w1.eea,,,,,
-sch-patient-585w1,Schizophrenia,1,Schizophrenia/sch/585w1.eea,,,,,
-sch-patient-586w1,Schizophrenia,1,Schizophrenia/sch/586w1.eea,,,,,
-sch-patient-642w1,Schizophrenia,1,Schizophrenia/sch/642w1.eea,,,,,
-sch-patient-683w1,Schizophrenia,1,Schizophrenia/sch/683w1.eea,,,,,
-sch-patient-719w1,Schizophrenia,1,Schizophrenia/sch/719w1.eea,,,,,
-sch-patient-r229w1,Schizophrenia,1,Schizophrenia/sch/r229w1.eea,,,,,
-sch-patient-r416w1,Schizophrenia,1,Schizophrenia/sch/r416w1.eea,,,,,
-sch-patient-s083w1,Schizophrenia,1,Schizophrenia/sch/s083w1.eea,,,,,
-sch-patient-S084-1W,Schizophrenia,1,Schizophrenia/sch/S084-1W.eea,,,,,
-sch-patient-s351w,Schizophrenia,1,Schizophrenia/sch/s351w.eea,,,,,
-sch-patient-s425w1,Schizophrenia,1,Schizophrenia/sch/s425w1.eea,,,,,
+sch-norm-S10W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S10W1_clean.npy,,,,,
+sch-norm-s12w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s12w1_clean.npy,,,,,
+sch-norm-s152w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s152w1_clean.npy,,,,,
+sch-norm-S153W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S153W1_clean.npy,,,,,
+sch-norm-S154W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S154W1_clean.npy,,,,,
+sch-norm-S155W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S155W1_clean.npy,,,,,
+sch-norm-s157w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s157w1_clean.npy,,,,,
+sch-norm-s158w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s158w1_clean.npy,,,,,
+sch-norm-S163W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S163W1_clean.npy,,,,,
+sch-norm-S164W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S164W1_clean.npy,,,,,
+sch-norm-S165W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S165W1_clean.npy,,,,,
+sch-norm-S167W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S167W1_clean.npy,,,,,
+sch-norm-S169W,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S169W_clean.npy,,,,,
+sch-norm-s170w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s170w1_clean.npy,,,,,
+sch-norm-s173w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s173w1_clean.npy,,,,,
+sch-norm-S174W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S174W1_clean.npy,,,,,
+sch-norm-s176w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s176w1_clean.npy,,,,,
+sch-norm-S177W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S177W1_clean.npy,,,,,
+sch-norm-s178w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s178w1_clean.npy,,,,,
+sch-norm-S179W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S179W1_clean.npy,,,,,
+sch-norm-S182W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S182W1_clean.npy,,,,,
+sch-norm-S18W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S18W1_clean.npy,,,,,
+sch-norm-S196W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S196W1_clean.npy,,,,,
+sch-norm-s20w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s20w1_clean.npy,,,,,
+sch-norm-S26W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S26W1_clean.npy,,,,,
+sch-norm-s27w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s27w1_clean.npy,,,,,
+sch-norm-S31W,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S31W_clean.npy,,,,,
+sch-norm-S42W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S42W1_clean.npy,,,,,
+sch-norm-s43w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s43w1_clean.npy,,,,,
+sch-norm-S47W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S47W1_clean.npy,,,,,
+sch-norm-S50W,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S50W_clean.npy,,,,,
+sch-norm-s53w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s53w1_clean.npy,,,,,
+sch-norm-S55W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S55W1_clean.npy,,,,,
+sch-norm-S59LW,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S59LW_clean.npy,,,,,
+sch-norm-S60W,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S60W_clean.npy,,,,,
+sch-norm-S72W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S72W1_clean.npy,,,,,
+sch-norm-S78W,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S78W_clean.npy,,,,,
+sch-norm-S85W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S85W1_clean.npy,,,,,
+sch-norm-s94w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s94w1_clean.npy,,,,,
+sch-patient-022w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-022w1_clean.npy,,,,,
+sch-patient-088w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-088w1_clean.npy,,,,,
+sch-patient-103w,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-103w_clean.npy,,,,,
+sch-patient-113w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-113w1_clean.npy,,,,,
+sch-patient-155w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-155w1_clean.npy,,,,,
+sch-patient-156w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-156w1_clean.npy,,,,,
+sch-patient-192w,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-192w_clean.npy,,,,,
+sch-patient-219w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-219w1_clean.npy,,,,,
+sch-patient-221w,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-221w_clean.npy,,,,,
+sch-patient-249w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-249w1_clean.npy,,,,,
+sch-patient-276w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-276w1_clean.npy,,,,,
+sch-patient-307w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-307w1_clean.npy,,,,,
+sch-patient-312w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-312w1_clean.npy,,,,,
+sch-patient-314w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-314w1_clean.npy,,,,,
+sch-patient-32w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-32w1_clean.npy,,,,,
+sch-patient-33w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-33w1_clean.npy,,,,,
+sch-patient-342mw1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-342mw1_clean.npy,,,,,
+sch-patient-382w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-382w1_clean.npy,,,,,
+sch-patient-387-02w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-387-02w1_clean.npy,,,,,
+sch-patient-387-03w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-387-03w1_clean.npy,,,,,
+sch-patient-401w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-401w1_clean.npy,,,,,
+sch-patient-423w,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-423w_clean.npy,,,,,
+sch-patient-429w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-429w1_clean.npy,,,,,
+sch-patient-454-1W,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-454-1W_clean.npy,,,,,
+sch-patient-485w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-485w1_clean.npy,,,,,
+sch-patient-508w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-508w1_clean.npy,,,,,
+sch-patient-509w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-509w1_clean.npy,,,,,
+sch-patient-510-1W,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-510-1W_clean.npy,,,,,
+sch-patient-515w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-515w1_clean.npy,,,,,
+sch-patient-517w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-517w1_clean.npy,,,,,
+sch-patient-540w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-540w1_clean.npy,,,,,
+sch-patient-548w,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-548w_clean.npy,,,,,
+sch-patient-573w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-573w1_clean.npy,,,,,
+sch-patient-575w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-575w1_clean.npy,,,,,
+sch-patient-585w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-585w1_clean.npy,,,,,
+sch-patient-586w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-586w1_clean.npy,,,,,
+sch-patient-642w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-642w1_clean.npy,,,,,
+sch-patient-683w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-683w1_clean.npy,,,,,
+sch-patient-719w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-719w1_clean.npy,,,,,
+sch-patient-r229w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-r229w1_clean.npy,,,,,
+sch-patient-r416w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-r416w1_clean.npy,,,,,
+sch-patient-s083w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-s083w1_clean.npy,,,,,
+sch-patient-S084-1W,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-S084-1W_clean.npy,,,,,
+sch-patient-s351w,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-s351w_clean.npy,,,,,
+sch-patient-s425w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-s425w1_clean.npy,,,,,
+sub-sz2-01,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-01_clean.npy,,,,44, M
+sub-sz2-02,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-02_clean.npy,,,,39, M
+sub-sz2-03,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-03_clean.npy,,,,53, M
+sub-sz2-04,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-04_clean.npy,,,,52, M
+sub-sz2-05,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-05_clean.npy,,,,41, M
+sub-sz2-06,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-06_clean.npy,,,,47, F
+sub-sz2-07,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-07_clean.npy,,,,61, F
+sub-sz2-08,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-08_clean.npy,,,,45, M
+sub-sz2-09,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-09_clean.npy,,,,25, M
+sub-sz2-10,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-10_clean.npy,,,,53, M
+sub-sz2-11,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-11_clean.npy,,,,44, M
+sub-sz2-12,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-12_clean.npy,,,,28, M
+sub-sz2-13,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-13_clean.npy,,,,56, M
+sub-sz2-14,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-14_clean.npy,,,,23, M
+sub-sz2-15,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-15_clean.npy,,,,24, M
+sub-sz2-16,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-16_clean.npy,,,,60, F
+sub-sz2-17,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-17_clean.npy,,,,23, F
+sub-sz2-18,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-18_clean.npy,,,,31, M
+sub-sz2-19,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-19_clean.npy,,,,38, M
+sub-sz2-20,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-20_clean.npy,,,,32, M
+sub-sz2-21,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-21_clean.npy,,,,45, M
+sub-sz2-22,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-22_clean.npy,,,,56, M
+sub-sz2-23,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-23_clean.npy,,,,26, M
+sub-sz2-24,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-24_clean.npy,,,,24, M
+sub-sz2-66,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-66_clean.npy,,,,27, M
+sub-sz2-67,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-67_clean.npy,,,,43, M
+sub-sz2-68,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-68_clean.npy,,,,23, M
+sub-sz2-69,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-69_clean.npy,,,,47, M
+sub-sz2-70,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-70_clean.npy,,,,26, M
+sub-sz2-71,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-71_clean.npy,,,,19, F
+sub-sz2-72,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-72_clean.npy,,,,24, M
+sub-sz2-73,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-73_clean.npy,,,,63, M
+sub-sz2-74,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-74_clean.npy,,,,60, M
+sub-sz2-75,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-75_clean.npy,,,,49, F
+sub-sz2-76,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-76_clean.npy,,,,32, M
+sub-sz2-77,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-77_clean.npy,,,,28, M
+sub-sz2-78,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-78_clean.npy,,,,32, F
+sub-sz2-79,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-79_clean.npy,,,,37, M
+sub-sz2-80,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-80_clean.npy,,,,33, M
+sub-sz2-81,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-81_clean.npy,,,,56, M
 sub-01,ds004302,0,,ds004302/sub-01/anat/sub-01_T1w.nii.gz,ds004302/sub-01/func/sub-01_task-speech_bold.nii.gz,,47,male
 sub-02,ds004302,0,,ds004302/sub-02/anat/sub-02_T1w.nii.gz,ds004302/sub-02/func/sub-02_task-speech_bold.nii.gz,,36,male
 sub-03,ds004302,0,,ds004302/sub-03/anat/sub-03_T1w.nii.gz,ds004302/sub-03/func/sub-03_task-speech_bold.nii.gz,,43,male
@@ -165,7 +205,7 @@ sub-B29,ds005073,0,,ds005073/sub-B29/anat/sub-B29_rec-2_T1w.nii.gz,ds005073/sub-
 sub-B37,ds005073,0,,ds005073/sub-B37/anat/sub-B37_rec-2_T1w.nii.gz,ds005073/sub-B37/func/sub-B37_task-rest_run-1_bold.nii.gz,,32,F
 sub-B40,ds005073,0,,ds005073/sub-B40/anat/sub-B40_rec-2_T1w.nii.gz,ds005073/sub-B40/func/sub-B40_task-rest_run-1_bold.nii.gz,,53,F
 sub-B48,ds005073,0,,ds005073/sub-B48/anat/sub-B48_rec-2_T1w.nii.gz,ds005073/sub-B48/func/sub-B48_task-rest_run-1_bold.nii.gz,,43,F
-sub-B59,ds005073,0,,ds005073/sub-B59/anat/sub-B59_rec-1_T1w.nii.gz.part,ds005073/sub-B59/func/sub-B59_task-rest_run-1_bold.nii.gz,,46,F
+sub-B59,ds005073,0,,ds005073/sub-B59/anat/sub-B59_rec-2_T1w.nii.gz,ds005073/sub-B59/func/sub-B59_task-rest_run-1_bold.nii.gz,,46,F
 sub-B61,ds005073,0,,ds005073/sub-B61/anat/sub-B61_rec-1_T1w.nii.gz,ds005073/sub-B61/func/sub-B61_task-rest_run-1_bold.nii.gz,,51,F
 sub-B62,ds005073,0,,ds005073/sub-B62/anat/sub-B62_rec-1_T1w.nii.gz,ds005073/sub-B62/func/sub-B62_task-rest_run-1_bold.nii.gz,,23,F
 sub-B70,ds005073,0,,ds005073/sub-B70/anat/sub-B70_rec-1_T1w.nii.gz,ds005073/sub-B70/func/sub-B70_task-rest_run-1_bold.nii.gz,,28,F

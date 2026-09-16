@@ -66,6 +66,10 @@ def load_eeg_file(path, sampling_rate=DEFAULT_EEG_SAMPLING_RATE):
             data = raw_bytes[: n_channels * n_samples].reshape(n_channels, n_samples)
             return data.astype(np.float32)
 
+    if path.suffix.lower() == ".npy":
+        data = np.load(str(path)).astype(np.float32)
+        return data
+
     raise ValueError(f"Unsupported EEG file type: {path.suffix}")
 
 

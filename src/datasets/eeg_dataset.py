@@ -78,10 +78,18 @@ class EEGDataset(BaseDataset):
         from src.preprocessing.eeg import EEGPreprocessor
         from src.utils.paths import resolve_data_path
 
+        resolved = resolve_data_path(eeg_path)
+        if resolved.suffix.lower() == ".npy":
+            eeg_data = np.load(str(resolved)).astype(np.float32)
+            return torch.from_numpy(eeg_data)
+
         preprocessor = EEGPreprocessor(self.eeg_config)
-        eeg_data, _ = preprocessor.load_eeg_file(str(resolve_data_path(eeg_path)))
-        # Per-channel z-score standardization to stabilize neural network activations
-        mean = np.mean(eeg_data, axis=1, keepdims=True)
-        std = np.std(eeg_data, axis=1, keepdims=True) + 1e-6
+        eeg_data, _ = preprocessor.load_eeg_file(str(resolved))
+        # Bandpass filter to isolate 0.5-45 Hz physiological EEG frequencies
+        eeg_data = preprocessor.apply_bandpass_filter(eeg_data, low_freq=0.5, high_freq=45.0)
+        # Per-channel z-score standardization
+        mean = np.mean(eeg_data, axis=-1, keepdims=True)
+        std = np.std(eeg_data, axis=-1, keepdims=True)
+        std = np.where(std < 1e-8, 1.0, std)
         eeg_data = (eeg_data - mean) / std
         return torch.FloatTensor(eeg_data)

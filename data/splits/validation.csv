@@ -1,28 +1,34 @@
 subject_id,dataset,label,eeg_path,mri_path,fmri_path,ct_path,age,sex
-sub-72,ds004302,1,,ds004302/sub-72/anat/sub-72_T1w.nii.gz,ds004302/sub-72/func/sub-72_task-speech_bold.nii.gz,,64,male
-sub-77,ds004302,1,,ds004302/sub-77/anat/sub-77_T1w.nii.gz,ds004302/sub-77/func/sub-77_task-speech_bold.nii.gz,,41,male
-sub-B70,ds005073,0,,ds005073/sub-B70/anat/sub-B70_rec-1_T1w.nii.gz,ds005073/sub-B70/func/sub-B70_task-rest_run-1_bold.nii.gz,,28,F
-sub-34,ds004302,1,,ds004302/sub-34/anat/sub-34_T1w.nii.gz,ds004302/sub-34/func/sub-34_task-speech_bold.nii.gz,,41,male
-sch-norm-S196W1,Schizophrenia,0,Schizophrenia/norm/S196W1.eea,,,,,
-sch-patient-314w1,Schizophrenia,1,Schizophrenia/sch/314w1.eea,,,,,
-sch-patient-510-1W,Schizophrenia,1,Schizophrenia/sch/510-1W.eea,,,,,
-sub-S25,ds005073,1,,ds005073/sub-S25/anat/sub-S25_rec-1_T1w.nii.gz,ds005073/sub-S25/func/sub-S25_task-rest_run-1_bold.nii.gz,,36,M
-sch-norm-s43w1,Schizophrenia,0,Schizophrenia/norm/s43w1.eea,,,,,
-sch-patient-221w,Schizophrenia,1,Schizophrenia/sch/221w.eea,,,,,
-sub-13,ds004302,0,,ds004302/sub-13/anat/sub-13_T1w.nii.gz,ds004302/sub-13/func/sub-13_task-speech_bold.nii.gz,,21,male
+sub-73,ds004302,1,,ds004302/sub-73/anat/sub-73_T1w.nii.gz,ds004302/sub-73/func/sub-73_task-speech_bold.nii.gz,,20,female
+sub-sz2-11,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-11_clean.npy,,,,44, M
+sub-23,ds004302,0,,ds004302/sub-23/anat/sub-23_T1w.nii.gz,ds004302/sub-23/func/sub-23_task-speech_bold.nii.gz,,33,male
+sch-patient-219w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-219w1_clean.npy,,,,,
+sch-norm-S182W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S182W1_clean.npy,,,,,
+sch-patient-586w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-586w1_clean.npy,,,,,
+sub-B29,ds005073,0,,ds005073/sub-B29/anat/sub-B29_rec-2_T1w.nii.gz,ds005073/sub-B29/func/sub-B29_task-rest_run-1_bold.nii.gz,,31,M
+sub-sz2-79,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-79_clean.npy,,,,37, M
+sub-75,ds004302,1,,ds004302/sub-75/anat/sub-75_T1w.nii.gz,ds004302/sub-75/func/sub-75_task-speech_bold.nii.gz,,32,male
+sch-norm-s170w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s170w1_clean.npy,,,,,
+sub-S53,ds005073,1,,ds005073/sub-S53/anat/sub-S53_rec-1_T1w.nii.gz,ds005073/sub-S53/func/sub-S53_task-rest_run-1_bold.nii.gz,,42,M
+sub-63,ds004302,1,,ds004302/sub-63/anat/sub-63_T1w.nii.gz,ds004302/sub-63/func/sub-63_task-speech_bold.nii.gz,,19,male
 sub-70,ds004302,1,,ds004302/sub-70/anat/sub-70_T1w.nii.gz,ds004302/sub-70/func/sub-70_task-speech_bold.nii.gz,,44,male
-sub-B14,ds005073,0,,ds005073/sub-B14/anat/sub-B14_rec-1_T2w.nii.gz,ds005073/sub-B14/func/sub-B14_task-rest_run-1_bold.nii.gz,,39,M
-sch-norm-s94w1,Schizophrenia,0,Schizophrenia/norm/s94w1.eea,,,,,
-sch-norm-S182W1,Schizophrenia,0,Schizophrenia/norm/S182W1.eea,,,,,
-sub-18,ds004302,0,,ds004302/sub-18/anat/sub-18_T1w.nii.gz,ds004302/sub-18/func/sub-18_task-speech_bold.nii.gz,,31,male
-sch-norm-S60W,Schizophrenia,0,Schizophrenia/norm/S60W.eea,,,,,
-sub-40,ds004302,1,,ds004302/sub-40/anat/sub-40_T1w.nii.gz,ds004302/sub-40/func/sub-40_task-speech_bold.nii.gz,,41,male
-sch-patient-508w1,Schizophrenia,1,Schizophrenia/sch/508w1.eea,,,,,
-sch-patient-382w1,Schizophrenia,1,Schizophrenia/sch/382w1.eea,,,,,
-sch-patient-088w1,Schizophrenia,1,Schizophrenia/sch/088w1.eea,,,,,
-sub-15,ds004302,0,,ds004302/sub-15/anat/sub-15_T1w.nii.gz,ds004302/sub-15/func/sub-15_task-speech_bold.nii.gz,,21,female
-sub-64,ds004302,1,,ds004302/sub-64/anat/sub-64_T1w.nii.gz,ds004302/sub-64/func/sub-64_task-speech_bold.nii.gz,,34,male
-sch-norm-s20w1,Schizophrenia,0,Schizophrenia/norm/s20w1.eea,,,,,
-sub-65,ds004302,1,,ds004302/sub-65/anat/sub-65_T1w.nii.gz,ds004302/sub-65/func/sub-65_task-speech_bold.nii.gz,,60,male
-sch-patient-S084-1W,Schizophrenia,1,Schizophrenia/sch/S084-1W.eea,,,,,
-sub-S49,ds005073,1,,ds005073/sub-S49/anat/sub-S49_rec-1_T1w.nii.gz,ds005073/sub-S49/func/sub-S49_task-rest_run-1_bold.nii.gz,,38,M
+sub-68,ds004302,1,,ds004302/sub-68/anat/sub-68_T1w.nii.gz,ds004302/sub-68/func/sub-68_task-speech_bold.nii.gz,,24,male
+sub-01,ds004302,0,,ds004302/sub-01/anat/sub-01_T1w.nii.gz,ds004302/sub-01/func/sub-01_task-speech_bold.nii.gz,,47,male
+sub-22,ds004302,0,,ds004302/sub-22/anat/sub-22_T1w.nii.gz,ds004302/sub-22/func/sub-22_task-speech_bold.nii.gz,,58,male
+sub-S06,ds005073,1,,ds005073/sub-S06/anat/sub-S06_rec-1_T1w.nii.gz,ds005073/sub-S06/func/sub-S06_task-rest_run-1_bold.nii.gz,,43,M
+sub-25,ds004302,0,,ds004302/sub-25/anat/sub-25_T1w.nii.gz,ds004302/sub-25/func/sub-25_task-speech_bold.nii.gz,,53,male
+sch-norm-S78W,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S78W_clean.npy,,,,,
+sch-norm-S163W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S163W1_clean.npy,,,,,
+sub-sz2-21,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-21_clean.npy,,,,45, M
+sub-44,ds004302,1,,ds004302/sub-44/anat/sub-44_T1w.nii.gz,ds004302/sub-44/func/sub-44_task-speech_bold.nii.gz,,50,female
+sub-B23,ds005073,0,,ds005073/sub-B23/anat/sub-B23_rec-2_T1w.nii.gz,ds005073/sub-B23/func/sub-B23_task-rest_run-1_bold.nii.gz,,36,M
+sch-patient-454-1W,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-454-1W_clean.npy,,,,,
+sub-sz2-75,EEG_DATA2,1,data/processed/eeg/standardized/sub-sz2-75_clean.npy,,,,49, F
+sch-patient-s351w,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-s351w_clean.npy,,,,,
+sch-patient-401w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-401w1_clean.npy,,,,,
+sub-sz2-24,EEG_DATA2,0,data/processed/eeg/standardized/sub-sz2-24_clean.npy,,,,24, M
+sch-patient-508w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-508w1_clean.npy,,,,,
+sch-norm-S85W1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-S85W1_clean.npy,,,,,
+sub-60,ds004302,1,,ds004302/sub-60/anat/sub-60_T1w.nii.gz,ds004302/sub-60/func/sub-60_task-speech_bold.nii.gz,,32,male
+sch-patient-314w1,Schizophrenia,1,data/processed/eeg/standardized/sch-patient-314w1_clean.npy,,,,,
+sch-norm-s27w1,Schizophrenia,0,data/processed/eeg/standardized/sch-norm-s27w1_clean.npy,,,,,

@@ -20,7 +20,9 @@ outputs_test/
 
 # Raw datasets (too large for git)
 ds004302/
+ds005073/
 Schizophrenia/
+EEG DATA2/
 data/raw/
 data/processed/
 

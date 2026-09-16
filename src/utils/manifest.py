@@ -193,10 +193,69 @@ def build_ds005073_entries(project_root: Path, bids_root: Optional[Path] = None)
     return entries
 
 
+def build_eeg_data2_entries(project_root: Path) -> List[Dict]:
+    """Index preprocessed EEG files from EEG DATA2."""
+    processed_dir = project_root / "data" / "processed" / "eeg" / "eeg_data2"
+    raw_dir = project_root / "EEG DATA2"
+    if not processed_dir.exists() and not raw_dir.exists():
+        logger.warning("EEG DATA2 directory not found: %s", raw_dir)
+        return []
+
+    # If processed files don't exist yet, generate them
+    if not list(processed_dir.glob("*.npy")):
+        try:
+            from scripts.prepare_button_tone_sz import prepare_eeg_data2
+            return prepare_eeg_data2(project_root)
+        except Exception as e:
+            logger.warning("Could not auto-prepare EEG DATA2: %s", e)
+            return []
+
+    demo_file = raw_dir / "demographic.csv"
+    demo_df = pd.DataFrame()
+    if demo_file.exists():
+        demo_df = pd.read_csv(demo_file)
+        demo_df.columns = [c.strip() for c in demo_df.columns]
+        demo_df = demo_df.set_index("subject")
+
+    entries: List[Dict] = []
+    for npy_file in sorted(processed_dir.glob("sub-sz2-*.npy")):
+        stem = npy_file.stem
+        try:
+            s_id = int(stem.replace("sub-sz2-", ""))
+        except ValueError:
+            continue
+
+        label = 0
+        age = ""
+        sex = ""
+        if s_id in demo_df.index:
+            row = demo_df.loc[s_id]
+            label = int(row["group"])
+            age = str(row.get("age", "")) if pd.notna(row.get("age")) else ""
+            sex = str(row.get("gender", "")) if pd.notna(row.get("gender")) else ""
+
+        entries.append(
+            {
+                "subject_id": stem,
+                "dataset": "EEG_DATA2",
+                "label": label,
+                "eeg_path": _rel(project_root, npy_file),
+                "mri_path": "",
+                "fmri_path": "",
+                "ct_path": "",
+                "age": age,
+                "sex": sex,
+            }
+        )
+
+    return entries
+
+
 def build_manifest(project_root: Optional[Path] = None) -> List[Dict]:
-    """Build combined manifest from Schizophrenia EEG, ds004302, and ds005073 neuroimaging."""
+    """Build combined manifest from Schizophrenia EEG, EEG DATA2, ds004302, and ds005073 neuroimaging."""
     project_root = project_root or Path(__file__).resolve().parents[2]
     entries = build_schizophrenia_entries(project_root)
+    entries.extend(build_eeg_data2_entries(project_root))
     entries.extend(build_ds004302_entries(project_root))
     entries.extend(build_ds005073_entries(project_root))
     return entries
@@ -218,13 +277,17 @@ def write_manifest(
             writer.writerow({col: entry.get(col, "") for col in MANIFEST_COLUMNS})
 
     sch = sum(1 for e in entries if e["dataset"] == "Schizophrenia")
+    eeg2 = sum(1 for e in entries if e["dataset"] == "EEG_DATA2")
     openneuro = sum(1 for e in entries if e["dataset"] == "ds004302")
+    ds5073 = sum(1 for e in entries if e["dataset"] == "ds005073")
     controls = sum(1 for e in entries if e["label"] == 0)
     patients = sum(1 for e in entries if e["label"] == 1)
 
     logger.info("Wrote manifest: %s", manifest_path)
     logger.info("  Schizophrenia EEG: %d", sch)
+    logger.info("  EEG DATA2 (Button-Tone-SZ): %d", eeg2)
     logger.info("  ds004302 MRI/fMRI: %d", openneuro)
+    logger.info("  ds005073 MRI/fMRI: %d", ds5073)
     logger.info("  Controls (0): %d", controls)
     logger.info("  Schizophrenia (1): %d", patients)
     logger.info("  Total: %d", len(entries))
