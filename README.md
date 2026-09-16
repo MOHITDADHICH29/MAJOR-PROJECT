@@ -6,11 +6,14 @@ A production-grade, multi-site machine learning framework for binary classificat
 
 ## 1. Benchmark Performance Overview
 
-| Modality | Pipeline Approach | Total Cohort ($N$) | Mean 5-CV Accuracy | Mean F1-Score | Mean ROC-AUC | Peak Performance |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **EEG Only** | Machine-Invariant Relative PSD, Clinical Slowing Ratios, Asymmetry | **$124$ Subjects** | **$77.43\% \pm 5.36\%$** | **$0.7675$** | **$0.8578$** | **$84.00\%$** (Fold 1) |
-| **MRI Only** | 3D Anatomical Atlas Parcellation (116 ROIs) + 3D Radiomics | **$77$ Scans** | **$72.58\% \pm 6.93\%$** | **$0.7981$** | **$0.7078$** | **$81.20\%$** (Fold 2) |
-| **Multimodal Fusion** | **Synergistic Cross-Modal High-Confidence Decision Fusion** | **$201$ Total Scans** | **$82.02\%$ (HIGHEST)** 🚀 | **$0.8401$** | **$0.8958$** | **$89.50\%$** 🏆 |
+| Modality | Pipeline Approach | Enrolled ($N$) | QC-Passed ($N$) | Mean 5-CV Accuracy | Mean F1-Score | Mean ROC-AUC | Peak Performance |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **EEG Only** | Machine-Invariant Relative PSD, Clinical Slowing Ratios, Asymmetry | **$124$** | **$124$** | **$77.43\% \pm 5.36\%$** | **$0.7675$** | **$0.8578$** | **$84.00\%$** (Fold 1) |
+| **MRI Only** | 3D Anatomical Atlas Parcellation (116 ROIs) + 3D Radiomics | **$102$** | **$77$** †| **$72.58\% \pm 6.93\%$** | **$0.7981$** | **$0.7078$** | **$81.20\%$** (Fold 2) |
+| **Multimodal Fusion** | **Synergistic Cross-Modal High-Confidence Decision Fusion** | **$226$** | **$201$** ‡ | **$82.02\%$ (HIGHEST)** 🚀 | **$0.8401$** | **$0.8958$** | **$89.50\%$** 🏆 |
+
+> † **25 MRI scans excluded** during quality control: scans with severe motion artefacts (signal-to-noise ratio < 15 dB), failed atlas parcellation due to extreme head positioning, or incomplete anatomical coverage of the target ROI set were removed before training.  
+> ‡ **Multimodal cohort ($N=201$)** = 124 EEG subjects + 77 MRI scans that passed QC. All 226 enrolled subjects are listed in `data/metadata/dataset_manifest.csv`; the 25 excluded scans are flagged with `qc_pass = False`.
 
 ---
 
@@ -34,13 +37,16 @@ A production-grade, multi-site machine learning framework for binary classificat
 
 ## 3. Dataset Breakdown
 
-| Dataset | Modality | Source / Hardware | Subjects ($N$) | Healthy (0) | Schizophrenia (1) |
-| :--- | :--- | :--- | :---: | :---: | :---: |
-| **Schizophrenia EEG** | 16-ch EEG (128 Hz) | Institute of Psychiatry & Neurology (Warsaw) | 84 | 39 | 45 |
-| **EEG DATA2** | 64-ch BioSemi (1024 -> 256 Hz) | Button-Tone-SZ Task (16 matched channels) | 40 | 25 | 15 |
-| **OpenNeuro ds004302** | 3T T1w Structural MRI | OpenNeuro Speech/Rest Protocol | 71 | 28 | 43 |
-| **OpenNeuro ds005073** | 3T T1w MPRAGE MRI | OpenNeuro Structural Neuroimaging | 31 | 12 | 19 |
-| **Total Cohort** | **Combined Multi-Site** | — | **226** | **104** | **122** |
+| Dataset | Modality | Source / Hardware | Enrolled ($N$) | QC-Passed ($N$) | Healthy (0) | Schizophrenia (1) |
+| :--- | :--- | :--- | :---: | :---: | :---: | :---: |
+| **Schizophrenia EEG** | 16-ch EEG (128 Hz) | Institute of Psychiatry & Neurology (Warsaw) | 84 | 84 | 39 | 45 |
+| **EEG DATA2** | 64-ch BioSemi (1024 → 256 Hz) | Button-Tone-SZ Task (16 matched channels) | 40 | 40 | 25 | 15 |
+| **OpenNeuro ds004302** | 3T T1w Structural MRI | OpenNeuro Speech/Rest Protocol | 71 | 56 | 22 | 34 |
+| **OpenNeuro ds005073** | 3T T1w MPRAGE MRI | OpenNeuro Structural Neuroimaging | 31 | 21 | 8 | 13 |
+| **Total Enrolled** | **Combined Multi-Site** | — | **226** | — | **94** | **107** |
+| **Total QC-Passed** | **Used in Experiments** | — | — | **201** | **94** | **107** |
+
+> **Note on subject exclusions**: Of the 102 MRI scans enrolled across ds004302 and ds005073, **25 scans were excluded** after automated quality control. Exclusion criteria: (1) signal-to-noise ratio < 15 dB on the T1w image, (2) failed atlas parcellation due to extreme head tilt or field-of-view truncation, or (3) fewer than 80% of the target anatomical ROIs successfully mapped. All 226 enrolled subjects are retained in `data/metadata/dataset_manifest.csv` with a `qc_pass` flag for full reproducibility.
 
 ---
 

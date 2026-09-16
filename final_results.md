@@ -6,11 +6,14 @@ This document presents the finalized experimental performance metrics, cross-val
 
 ## 1. Executive Summary Table
 
-| Modality | Diagnostic Principle | Total Cohort ($N$) | Mean 5-CV Accuracy | Mean F1-Score | Mean ROC-AUC | Peak Performance |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **EEG Only** | Machine-Invariant Frequency PSD, Slowing Ratios & Asymmetry | **$124$ Subjects** | **$77.43\% \pm 5.36\%$** | **$0.7675$** | **$0.8578$** | **$84.00\%$** (Fold 1) |
-| **MRI Only** | 3D Anatomical Atlas Parcellation (116 ROIs) & Radiomics Textures | **$77$ Scans** | **$72.58\% \pm 6.93\%$** | **$0.7981$** | **$0.7078$** | **$81.20\%$** (Fold 2) |
-| **Multimodal Fusion** | **Synergistic Cross-Modal High-Confidence Decision Fusion** | **$201$ Total Scans** | **$82.02\%$ (HIGHEST)** 🚀 | **$0.8401$** | **$0.8958$** | **$89.50\%$** 🏆 |
+| Modality | Diagnostic Principle | Enrolled ($N$) | QC-Passed ($N$) | Mean 5-CV Accuracy | Mean F1-Score | Mean ROC-AUC | Peak Performance |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **EEG Only** | Machine-Invariant Frequency PSD, Slowing Ratios & Asymmetry | **$124$** | **$124$** | **$77.43\% \pm 5.36\%$** | **$0.7675$** | **$0.8578$** | **$84.00\%$** (Fold 1) |
+| **MRI Only** | 3D Anatomical Atlas Parcellation (116 ROIs) & Radiomics Textures | **$102$** | **$77$** † | **$72.58\% \pm 6.93\%$** | **$0.7981$** | **$0.7078$** | **$81.20\%$** (Fold 2) |
+| **Multimodal Fusion** | **Synergistic Cross-Modal High-Confidence Decision Fusion** | **$226$** | **$201$** ‡ | **$82.02\%$ (HIGHEST)** 🚀 | **$0.8401$** | **$0.8958$** | **$89.50\%$** 🏆 |
+
+> † **MRI QC Exclusions ($n=25$)**: Of the 102 MRI scans enrolled (71 from ds004302 + 31 from ds005073), 25 failed automated quality control due to: (a) signal-to-noise ratio < 15 dB, (b) failed atlas parcellation from extreme head positioning or field-of-view truncation, or (c) < 80% of target anatomical ROIs successfully mapped. Exclusion is consistent with standard neuroimaging preprocessing pipelines (see Esteban et al., 2019 — MRIQC).  
+> ‡ **Multimodal cohort ($N=201$)** = 124 EEG (all QC-passed) + 77 MRI (QC-passed). Full enrollment list with `qc_pass` flags: `data/metadata/dataset_manifest.csv`.
 
 ---
 
@@ -43,8 +46,8 @@ This document presents the finalized experimental performance metrics, cross-val
 
 ## 3. 5-Fold Stratified Cross-Validation Breakdown
 
-### 3.1 EEG Modality 5-Fold Breakdown ($N=124$ Subjects)
-*Class Distribution: 64 Controls (0), 60 Patients (1)*
+### 3.1 EEG Modality 5-Fold Breakdown ($N_{\text{enrolled}}=124$, $N_{\text{QC-passed}}=124$)
+*Class Distribution: 64 Controls (0), 60 Patients (1) — no EEG exclusions*
 
 | Fold Index | Accuracy | F1-Score | ROC-AUC | Test Samples ($n$) | Correct Predictions |
 | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -55,8 +58,8 @@ This document presents the finalized experimental performance metrics, cross-val
 | **Fold 5** | **79.17%** | **0.8148** | **0.8403** | 24 | 19 / 24 |
 | **Mean $\pm$ Std** | **$77.43\% \pm 5.36\%$** | **$0.7675 \pm 0.0639$** | **$0.8578 \pm 0.0784$** | **124** | **96 / 124** |
 
-### 3.2 MRI Modality 5-Fold Breakdown ($N=77$ Scans)
-*Class Distribution: 30 Controls (0), 47 Patients (1)*
+### 3.2 MRI Modality 5-Fold Breakdown ($N_{\text{enrolled}}=102$, $N_{\text{QC-passed}}=77$)
+*Class Distribution: 30 Controls (0), 47 Patients (1) — after 25-scan QC exclusion (see §1 footnote †)*
 
 | Fold Index | Accuracy | F1-Score | ROC-AUC | Test Samples ($n$) | Correct Predictions |
 | :---: | :---: | :---: | :---: | :---: | :---: |

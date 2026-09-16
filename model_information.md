@@ -98,7 +98,8 @@ The system processes two complementary modalities to detect schizophrenia biomar
 ## 3. MRI Modality: 3D Anatomical Atlas & Radiomics Pipeline
 
 ### 3.1 Scanner & Resolution Harmonization
-* **Cohorts**: OpenNeuro `ds004302` (71 scans) and `ds005073` (31 scans).
+* **Cohorts**: OpenNeuro `ds004302` (71 enrolled, 56 QC-passed) and `ds005073` (31 enrolled, 21 QC-passed) — **102 enrolled total, 77 QC-passed**.
+* **QC Exclusions ($n=25$)**: Scans removed if SNR < 15 dB, atlas parcellation failure (extreme head positioning or FOV truncation), or < 80% of target ROIs mapped. Consistent with MRIQC criteria (Esteban et al., 2019).
 * **Processing**: Resampled via trilinear interpolation into an isotropic $96 \times 96 \times 96$ standard grid with 99th-percentile robust background skull-stripping.
 
 ### 3.2 Feature Extraction Pipeline (`111` Dimensions)
@@ -165,5 +166,5 @@ Rather than simple unweighted averaging (which allows an uncertain modality to d
 | :--- | :--- | :--- | :--- |
 | **EEG Production Model** | `models/checkpoints/eeg_cv_ensemble.pkl` | Pickle | 432-dim Quantile Scaler + 6-Model Soft Voting Ensemble |
 | **MRI Production Model** | `models/checkpoints/mri_morphometric_ensemble.pkl` | Pickle | 111-dim Quantile Scaler + 5-Model Soft Voting Ensemble |
-| **Dataset Manifest** | `data/metadata/dataset_manifest.csv` | CSV | Index of all 226 subjects with labels and standardized paths |
+| **Dataset Manifest** | `data/metadata/dataset_manifest.csv` | CSV | All 226 enrolled subjects with labels, paths, and `qc_pass` flag; 201 flagged `qc_pass=True` |
 | **Standardized EEG Cache**| `data/processed/eeg/standardized/` | `.npy` | Cleaned, bandpassed (0.5–45 Hz) 16-channel arrays |
