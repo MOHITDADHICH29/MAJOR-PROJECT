@@ -23,6 +23,10 @@ ds004302/
 ds005073/
 Schizophrenia/
 EEG DATA2/
+# Allow small metadata files from EEG DATA2
+!EEG DATA2/columnLabels.csv
+!EEG DATA2/demographic.csv
+!EEG DATA2/time.csv
 data/raw/
 data/processed/
 

@@ -91,8 +91,26 @@ d:/MAJOR PROJECT/
 
 ---
 
-## 6. Technical Documentation
+## 6. Data Download
+
+> ✅ **MRI datasets** (`ds004302/`, `ds005073/`) are **already in this repository** — no download needed.  
+> ⚠️ **EEG DATA2** (~19.4 GB) is too large for GitHub and must be downloaded separately.
+
+See **[DATA_README.md](DATA_README.md)** for full download instructions. Quick summary:
+
+```bash
+# EEG DATA2 — dataset: broach/button-tone-sz on Kaggle
+pip install kaggle
+kaggle datasets download -d broach/button-tone-sz -p "EEG DATA2/" --unzip
+```
+
+✅ **Already in repo** (inside `EEG DATA2/`): `columnLabels.csv`, `demographic.csv`, `time.csv`
+
+---
+
+## 7. Technical Documentation
 
 For detailed mathematical formulations, feature descriptions, and classifier hyperparameters, refer to:
-* **[model_information.md](file:///d:/MAJOR%20PROJECT/model_information.md)**: Full pipeline engineering, biomarker equations, and ensemble architectures.
-* **[final_results.md](file:///d:/MAJOR%20PROJECT/final_results.md)**: Detailed fold breakdowns, baseline comparisons, and clinical interpretation.
+* **[model_information.md](model_information.md)**: Full pipeline engineering, biomarker equations, and ensemble architectures.
+* **[final_results.md](final_results.md)**: Detailed fold breakdowns, baseline comparisons, and clinical interpretation.
+* **[DATA_README.md](DATA_README.md)**: Dataset download and setup instructions.
