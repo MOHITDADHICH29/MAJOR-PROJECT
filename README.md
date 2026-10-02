@@ -1,4 +1,94 @@
-# Multimodal Schizophrenia Classification System
+# NeuroFusion AI — Multimodal Schizophrenia Classification System
+
+A production-grade, multi-site machine learning framework for binary classification of **Schizophrenia Patients vs. Healthy Controls** using multi-modal EEG and 3D structural MRI, with a full **React web dashboard** and **Flask REST API**.
+
+---
+
+## 🚀 Getting Started (Fresh Clone — Run on Any System)
+
+### Prerequisites
+- **Python 3.9+**
+- **Node.js 18+** and **npm**
+- **Git**
+
+---
+
+### Step 1 — Clone the Repository
+
+```bash
+git clone https://github.com/MOHITDADHICH29/MAJOR-PROJECT.git
+cd MAJOR-PROJECT
+```
+
+---
+
+### Step 2 — Set Up the Python Backend
+
+```bash
+# Create a virtual environment
+python -m venv .venv
+
+# Activate it
+# Windows:
+.venv\Scripts\activate
+# macOS / Linux:
+source .venv/bin/activate
+
+# Install all dependencies
+pip install -r requirements.txt
+```
+
+---
+
+### Step 3 — Set Up the React Frontend
+
+```bash
+cd frontend
+npm install
+cd ..
+```
+
+---
+
+### Step 4 — Run the Application
+
+Open **two terminals**:
+
+**Terminal 1 — Start the Flask backend API:**
+```bash
+# Windows (with venv active):
+.venv\Scripts\python.exe run_server.py
+
+# macOS / Linux (with venv active):
+python run_server.py
+```
+Backend will be available at: `http://127.0.0.1:5000`
+
+**Terminal 2 — Start the React frontend:**
+```bash
+cd frontend
+npm run dev
+```
+Dashboard will be available at: `http://localhost:5173`
+
+---
+
+### ⚠️ Data Requirements
+
+The **pre-trained ML model checkpoints** are included in the repo — the dashboard will work out of the box for inference and visualization.
+
+To **re-train models from scratch**, you need the raw datasets:
+
+| Dataset | Size | How to Get |
+|---|---|---|
+| `Schizophrenia/` EEG | ~500 MB | Contact dataset authors |
+| `EEG DATA2/` | ~19.4 GB | `kaggle datasets download -d broach/button-tone-sz` |
+| `ds004302/` MRI | ~8 GB | `aws s3 sync s3://openneuro.org/ds004302 ds004302/` |
+| `ds005073/` MRI | ~4 GB | `aws s3 sync s3://openneuro.org/ds005073 ds005073/` |
+
+---
+
+
 
 A production-grade, multi-site machine learning framework for binary classification of **Schizophrenia Patients vs. Healthy Controls** using multi-modal electroencephalography (EEG) and 3D structural magnetic resonance imaging (T1w MRI).
 

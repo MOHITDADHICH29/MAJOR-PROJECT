@@ -1,8 +1,16 @@
+# Core ML & Data Science
 torch
 numpy
 pandas
 scikit-learn
+scipy
+
+# Neuroimaging
 mne
 nibabel
 nilearn
-scipy
+
+# Web Backend (Flask API)
+flask
+flask-cors
+werkzeug
