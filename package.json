@@ -1,0 +1,16 @@
+{
+  "name": "major-project",
+  "version": "1.0.0",
+  "description": "A production-grade, multi-site machine learning framework for binary classification of **Schizophrenia Patients vs. Healthy Controls** using multi-modal electroencephalography (EEG) and 3D structural magnetic resonance imaging (T1w MRI).",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

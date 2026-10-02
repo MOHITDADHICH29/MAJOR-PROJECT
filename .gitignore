@@ -40,3 +40,15 @@ test_*.nii.gz
 
 # Environment files with secrets
 .env
+
+# Node.js dependencies
+node_modules/
+frontend/node_modules/
+
+# Frontend build output
+frontend/dist/
+dist/
+
+# Package lock files (optional - remove if you want to track it)
+package-lock.json
+frontend/package-lock.json
