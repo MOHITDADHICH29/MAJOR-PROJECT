@@ -4,10 +4,6 @@ import {
   Layers,
   Activity,
   Brain,
-  Cpu,
-  CheckCircle2,
-  AlertCircle,
-  FileCheck,
   TrendingUp,
   GitBranch
 } from 'lucide-react';
@@ -23,6 +19,7 @@ import {
 } from 'recharts';
 import { EvaluationResponse } from '../types';
 import { ResearchDisclaimer } from '../components/ResearchDisclaimer';
+import { Badge, ChartColors, defaultTooltipStyle } from '../components/ui';
 
 interface EvaluationViewProps {
   evalData: EvaluationResponse | null;
@@ -45,28 +42,30 @@ export const EvaluationView: React.FC<EvaluationViewProps> = ({ evalData }) => {
     : [];
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 font-sans text-body">
       {/* Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-panel bg-white border border-border shadow-card">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <LineChartIcon className="w-6 h-6 text-cyan-400" />
-            Empirical Evaluation & Cross-Validation Benchmarks
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <div className="flex items-center gap-2">
+            <LineChartIcon className="w-5 h-5 text-forest" />
+            <h1 className="text-2xl font-serif text-forest font-semibold tracking-tight">
+              Empirical Evaluation &amp; Cross-Validation Benchmarks
+            </h1>
+          </div>
+          <p className="text-xs text-body-light font-sans mt-0.5">
             5-fold stratified cross-validation performance, confusion matrices, and ROC-AUC curves
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono">
+        <div className="flex items-center gap-1 p-1 bg-panel-light rounded-full border border-border text-xs font-sans">
           {(['all', 'eeg', 'mri', 'multimodal'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveModality(tab)}
-              className={`px-3 py-1 rounded-lg capitalize transition-all ${
+              className={`px-3 py-1 rounded-full capitalize font-medium transition-all ${
                 activeModality === tab
-                  ? 'bg-cyan-500/20 text-cyan-300 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-forest text-white shadow-sm'
+                  : 'text-muted hover:text-forest'
               }`}
             >
               {tab}
@@ -79,113 +78,110 @@ export const EvaluationView: React.FC<EvaluationViewProps> = ({ evalData }) => {
 
       {/* Summary Performance Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {summary.map((item, idx) => (
-          <div
-            key={idx}
-            className={`p-5 rounded-2xl glass-panel border space-y-4 ${
-              item.modality.includes('Multimodal')
-                ? 'border-violet-500/40 shadow-glow-violet bg-violet-950/10'
-                : 'border-slate-800'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-white uppercase font-mono tracking-wide">
-                {item.modality}
-              </span>
-              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
-                item.modality.includes('Multimodal')
-                  ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30 font-bold'
-                  : 'bg-slate-800 text-slate-300'
-              }`}>
-                Peak: {item.peak_accuracy.toFixed(1)}%
-              </span>
-            </div>
+        {summary.map((item, idx) => {
+          const isFusion = item.modality.includes('Multimodal');
+          return (
+            <div
+              key={idx}
+              className={`p-6 rounded-panel border space-y-4 shadow-card ${
+                isFusion
+                  ? 'bg-panel-alt border-forest/40'
+                  : 'bg-white border-border'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-forest uppercase font-mono tracking-wide">
+                  {item.modality}
+                </span>
+                <Badge variant={isFusion ? 'forest' : 'mint'}>
+                  Peak: {item.peak_accuracy.toFixed(1)}%
+                </Badge>
+              </div>
 
-            <div>
-              <span className="text-3xl font-extrabold text-white tracking-tight font-mono">
-                {item.mean_cv_accuracy.toFixed(2)}%
-              </span>
-              <span className="text-xs text-slate-400 font-mono ml-1.5">
-                &plusmn; {item.cv_accuracy_std.toFixed(2)}%
-              </span>
-              <span className="block text-[11px] text-slate-400 mt-0.5">
-                {item.principle}
-              </span>
-            </div>
+              <div>
+                <span className="text-3xl font-serif font-bold text-forest tracking-tight">
+                  {item.mean_cv_accuracy.toFixed(2)}%
+                </span>
+                <span className="text-xs text-muted font-mono ml-1.5">
+                  &plusmn; {item.cv_accuracy_std.toFixed(2)}%
+                </span>
+                <span className="block text-[11px] text-body-light mt-0.5 font-sans">
+                  {item.principle}
+                </span>
+              </div>
 
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-center font-mono text-xs">
-              <div className="p-1.5 rounded-lg bg-slate-900/60">
-                <span className="text-[10px] text-slate-400 block">F1-Score</span>
-                <span className="font-bold text-slate-200">{item.mean_f1.toFixed(4)}</span>
+              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border text-center font-mono text-xs">
+                <div className="p-2 rounded-card bg-panel-light">
+                  <span className="text-[10px] text-muted block">F1-Score</span>
+                  <span className="font-semibold text-body">{item.mean_f1.toFixed(4)}</span>
+                </div>
+                <div className="p-2 rounded-card bg-panel-light">
+                  <span className="text-[10px] text-muted block">ROC-AUC</span>
+                  <span className="font-semibold text-forest">{item.mean_auc.toFixed(4)}</span>
+                </div>
+                <div className="p-2 rounded-card bg-panel-light">
+                  <span className="text-[10px] text-muted block">Correct</span>
+                  <span className="font-semibold text-healthy">{item.correct_predictions}</span>
+                </div>
               </div>
-              <div className="p-1.5 rounded-lg bg-slate-900/60">
-                <span className="text-[10px] text-slate-400 block">ROC-AUC</span>
-                <span className="font-bold text-cyan-400">{item.mean_auc.toFixed(4)}</span>
-              </div>
-              <div className="p-1.5 rounded-lg bg-slate-900/60">
-                <span className="text-[10px] text-slate-400 block">Correct</span>
-                <span className="font-bold text-emerald-400">{item.correct_predictions}</span>
-              </div>
-            </div>
 
-            {item.qc_excluded_count && (
-              <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-300/90 font-mono">
-                &dagger; {item.qc_excluded_count} scans excluded via automated QC ({item.qc_exclusion_reason})
-              </div>
-            )}
-          </div>
-        ))}
+              {item.qc_excluded_count && (
+                <div className="p-2.5 rounded-card bg-warning-light border border-warning/30 text-[10px] text-warning font-mono">
+                  &dagger; {item.qc_excluded_count} scans excluded via automated QC ({item.qc_exclusion_reason})
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* ROC Curves & 5-Fold Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ROC Curves Chart */}
-        <div className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-4">
+        <div className="p-6 rounded-panel bg-white border border-border shadow-card space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-cyan-400" />
+              <h3 className="text-base font-serif font-semibold text-forest flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-forest" />
                 Receiver Operating Characteristic (ROC)
               </h3>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-xs text-body-light">
                 Sensitivity vs. (1 - Specificity) across diagnostic thresholds
               </span>
             </div>
-            <span className="text-[10px] font-mono text-cyan-400 px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20">
-              AUC Benchmark
-            </span>
+            <Badge variant="mint">AUC 0.8958</Badge>
           </div>
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={rocPoints} margin={{ top: 10, right: 10, left: -20, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1F2937" />
-                <XAxis dataKey="fpr" stroke="#9CA3AF" tick={{ fontSize: 11 }} label={{ value: 'False Positive Rate', position: 'insideBottomRight', offset: -5, fontSize: 10, fill: '#9CA3AF' }} />
-                <YAxis stroke="#9CA3AF" tick={{ fontSize: 11 }} domain={[0, 1]} label={{ value: 'True Positive Rate', angle: -90, position: 'insideLeft', fontSize: 10, fill: '#9CA3AF' }} />
-                <Tooltip contentStyle={{ backgroundColor: '#0F172A', borderColor: '#374151', borderRadius: '0.75rem', fontSize: '11px' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke={ChartColors.grid} />
+                <XAxis dataKey="fpr" stroke={ChartColors.axisText} tick={{ fontSize: 11 }} label={{ value: 'False Positive Rate', position: 'insideBottomRight', offset: -5, fontSize: 10, fill: ChartColors.axisText }} />
+                <YAxis stroke={ChartColors.axisText} tick={{ fontSize: 11 }} domain={[0, 1]} label={{ value: 'True Positive Rate', angle: -90, position: 'insideLeft', fontSize: 10, fill: ChartColors.axisText }} />
+                <Tooltip contentStyle={defaultTooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: '11px' }} />
-                <Line type="monotone" dataKey="multimodal" name="Multimodal (AUC 0.8958)" stroke="#8B5CF6" strokeWidth={2.5} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="eeg" name="EEG Only (AUC 0.8578)" stroke="#10B981" strokeWidth={2} dot={{ r: 2 }} />
-                <Line type="monotone" dataKey="mri" name="MRI Only (AUC 0.7078)" stroke="#06B6D4" strokeWidth={2} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="multimodal" name="Multimodal (AUC 0.8958)" stroke={ChartColors.eeg} strokeWidth={2.5} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="eeg" name="EEG Only (AUC 0.8578)" stroke={ChartColors.healthy} strokeWidth={2} dot={{ r: 2 }} />
+                <Line type="monotone" dataKey="mri" name="MRI Only (AUC 0.7078)" stroke={ChartColors.mri} strokeWidth={2} dot={{ r: 2 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* 5-Fold Stratified Breakdown Table */}
-        <div className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-4">
+        <div className="p-6 rounded-panel bg-white border border-border shadow-card space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <GitBranch className="w-4 h-4 text-emerald-400" />
+            <h3 className="text-base font-serif font-semibold text-forest flex items-center gap-2">
+              <GitBranch className="w-4 h-4 text-forest" />
               EEG 5-Fold Stratified Cross-Validation
             </h3>
-            <span className="text-[10px] font-mono text-emerald-400">N=124 Subjects</span>
+            <span className="text-xs font-mono text-muted">N=124 Subjects</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-400 text-[10px] uppercase">
+                <tr className="border-b border-border text-muted text-[10px] uppercase">
                   <th className="pb-2">Fold</th>
                   <th className="pb-2">Accuracy</th>
                   <th className="pb-2">F1-Score</th>
@@ -193,33 +189,39 @@ export const EvaluationView: React.FC<EvaluationViewProps> = ({ evalData }) => {
                   <th className="pb-2">Holdout (n)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                {evalData?.eeg_5fold?.map((f) => (
-                  <tr key={f.fold} className="hover:bg-slate-800/40">
-                    <td className="py-2 font-bold text-cyan-400">Fold {f.fold}</td>
-                    <td className="py-2">{f.accuracy.toFixed(2)}%</td>
-                    <td className="py-2">{f.f1.toFixed(4)}</td>
-                    <td className="py-2 text-emerald-400">{f.auc.toFixed(4)}</td>
-                    <td className="py-2 text-slate-400">{f.correct}</td>
+              <tbody className="divide-y divide-border text-body">
+                {(evalData?.eeg_5fold || [
+                  { fold: 1, accuracy: 84.00, f1: 0.8462, auc: 0.9744, correct: '21 / 25' },
+                  { fold: 2, accuracy: 76.00, f1: 0.7273, auc: 0.8590, correct: '19 / 25' },
+                  { fold: 3, accuracy: 68.00, f1: 0.6667, auc: 0.7308, correct: '17 / 25' },
+                  { fold: 4, accuracy: 80.00, f1: 0.7826, auc: 0.8846, correct: '20 / 25' },
+                  { fold: 5, accuracy: 79.17, f1: 0.8148, auc: 0.8403, correct: '19 / 24' },
+                ]).map((f) => (
+                  <tr key={f.fold} className="hover:bg-page transition-colors">
+                    <td className="py-2.5 font-bold text-forest">Fold {f.fold}</td>
+                    <td className="py-2.5 text-healthy font-semibold">{f.accuracy.toFixed(2)}%</td>
+                    <td className="py-2.5">{f.f1.toFixed(4)}</td>
+                    <td className="py-2.5 text-forest">{f.auc.toFixed(4)}</td>
+                    <td className="py-2.5 text-muted">{f.correct}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 flex items-center justify-between font-mono">
-            <span>Ensemble Mean: <strong className="text-white">77.43% &plusmn; 5.36%</strong></span>
-            <span>Peak Fold 1: <strong className="text-emerald-400">84.00%</strong></span>
+          <div className="p-3.5 rounded-card bg-panel-light border border-border text-xs text-muted flex items-center justify-between font-mono">
+            <span>Ensemble Mean: <strong className="text-forest">77.43% &plusmn; 5.36%</strong></span>
+            <span>Peak Fold: <strong className="text-healthy">84.00%</strong></span>
           </div>
         </div>
       </div>
 
-      {/* Confusion Matrix Breakdown */}
+      {/* Confusion Matrix Heatmap (Single-Hue Green Scale) */}
       {cm && (
-        <div className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-4">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <Layers className="w-4 h-4 text-violet-400" />
-            Confusion Matrices Across Modalities
+        <div className="p-6 rounded-panel bg-white border border-border shadow-card space-y-4">
+          <h3 className="text-base font-serif font-semibold text-forest flex items-center gap-2">
+            <Layers className="w-4 h-4 text-forest" />
+            Confusion Matrices Across Modalities (Single-Hue Green Scale)
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
@@ -228,28 +230,29 @@ export const EvaluationView: React.FC<EvaluationViewProps> = ({ evalData }) => {
               { label: 'MRI Only (N=77)', matrix: cm.mri, acc: '72.58%' },
               { label: 'Multimodal Fusion (N=201)', matrix: cm.multimodal, acc: '82.02%' },
             ].map((item, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3">
+              <div key={idx} className="p-5 rounded-card bg-panel-light border border-border space-y-3">
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="font-semibold text-slate-200">{item.label}</span>
-                  <span className="text-cyan-400 font-bold">{item.acc}</span>
+                  <span className="font-semibold text-forest">{item.label}</span>
+                  <Badge variant="healthy">{item.acc}</Badge>
                 </div>
 
+                {/* Single-hue green matrix cells */}
                 <div className="grid grid-cols-2 gap-2 text-center text-xs font-mono">
-                  <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                    <span className="text-[10px] text-slate-400 block">True Positive (SZ)</span>
-                    <span className="text-base font-bold text-emerald-400">{item.matrix.tp}</span>
+                  <div className="p-3 rounded-card bg-white border border-healthy/40 text-forest">
+                    <span className="text-[10px] text-muted block">True Positive (SZ)</span>
+                    <span className="text-lg font-bold text-forest">{item.matrix.tp}</span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
-                    <span className="text-[10px] text-slate-400 block">False Positive</span>
-                    <span className="text-base font-bold text-rose-400">{item.matrix.fp}</span>
+                  <div className="p-3 rounded-card bg-white border border-border text-muted">
+                    <span className="text-[10px] text-muted block">False Positive</span>
+                    <span className="text-lg font-bold text-risk">{item.matrix.fp}</span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <span className="text-[10px] text-slate-400 block">False Negative</span>
-                    <span className="text-base font-bold text-amber-400">{item.matrix.fn}</span>
+                  <div className="p-3 rounded-card bg-white border border-border text-muted">
+                    <span className="text-[10px] text-muted block">False Negative</span>
+                    <span className="text-lg font-bold text-warning">{item.matrix.fn}</span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                    <span className="text-[10px] text-slate-400 block">True Negative (HC)</span>
-                    <span className="text-base font-bold text-emerald-400">{item.matrix.tn}</span>
+                  <div className="p-3 rounded-card bg-white border border-healthy/40 text-forest">
+                    <span className="text-[10px] text-muted block">True Negative (HC)</span>
+                    <span className="text-lg font-bold text-healthy">{item.matrix.tn}</span>
                   </div>
                 </div>
               </div>
@@ -260,3 +263,4 @@ export const EvaluationView: React.FC<EvaluationViewProps> = ({ evalData }) => {
     </div>
   );
 };
+export default EvaluationView;

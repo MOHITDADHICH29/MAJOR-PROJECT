@@ -29,6 +29,7 @@ EEG DATA2/
 !EEG DATA2/time.csv
 data/raw/
 data/processed/
+data/uploads/
 
 # Model checkpoints (binary weights)
 models/checkpoints/*.pt

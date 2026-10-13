@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { SystemStatusResponse, DatasetSample, EEGAnalysisResult, MRIAnalysisResult, MultimodalAnalysisResult } from '../types';
 import { ResearchDisclaimer } from '../components/ResearchDisclaimer';
+import { Badge, Button, VerticalBars } from '../components/ui';
 
 interface OverviewViewProps {
   statusData: SystemStatusResponse | null;
@@ -39,58 +40,64 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 }) => {
   const pipelines = statusData?.pipelines;
 
-  const pipelineSteps = [
-    { title: 'Data Input', desc: 'Raw EEG & 3D T1-MRI upload or cohort preset selection', icon: Database, color: 'text-cyan-400' },
-    { title: 'Preprocessing', desc: 'Bandpass (0.5-45 Hz), Notch, Z-score & 96³ volume resampling', icon: Layers, color: 'text-blue-400' },
-    { title: 'Feature Extraction', desc: '352 machine-invariant spectral & 111-ROI anatomical atlas', icon: GitBranch, color: 'text-violet-400' },
-    { title: 'Dual Models', desc: 'EEG electrophysiology & 3D MRI morphometric ensembles', icon: Brain, color: 'text-purple-400' },
-    { title: 'Multimodal Fusion', desc: 'Synergistic hierarchical cross-modal decision fusion', icon: Cpu, color: 'text-emerald-400' },
-    { title: 'Prediction', desc: 'Calibrated binary confidence scoring & class probability', icon: Activity, color: 'text-teal-400' },
-    { title: 'Explainable AI', desc: 'Channel gradients, slowing ratios & ROI volumetric attribution', icon: Sparkles, color: 'text-amber-400' },
-    { title: 'Severity Estimation', desc: 'Research limitation protocol & scientific rationale banner', icon: AlertCircle, color: 'text-rose-400' },
-    { title: 'Research Report', desc: 'Comprehensive clinical laboratory summary export & print', icon: FileText, color: 'text-indigo-400' },
+  const pipelineSteps: { title: string; desc: string; icon: any; color: string; page: any }[] = [
+    { title: 'Data Input', desc: 'Raw EEG & 3D T1-MRI upload or cohort preset selection', icon: Database, color: 'text-forest', page: 'data-input' },
+    { title: 'Preprocessing', desc: 'Bandpass (0.5-45 Hz), Notch, Z-score & 96³ resampling', icon: Layers, color: 'text-mri', page: 'data-input' },
+    { title: 'Feature Extraction', desc: '432 machine-invariant spectral & 111-ROI atlas', icon: GitBranch, color: 'text-forest', page: 'prediction' },
+    { title: 'Dual Models', desc: 'EEG electrophysiology & 3D MRI morphometric ensembles', icon: Brain, color: 'text-mri', page: 'prediction' },
+    { title: 'Multimodal Fusion', desc: 'Synergistic hierarchical cross-modal decision fusion', icon: Cpu, color: 'text-forest', page: 'prediction' },
+    { title: 'Prediction', desc: 'Calibrated binary confidence scoring & class probability', icon: Activity, color: 'text-healthy', page: 'prediction' },
+    { title: 'Explainable AI', desc: 'Channel gradients, slowing ratios & ROI attribution', icon: Sparkles, color: 'text-warning', page: 'explainability' },
+    { title: 'Severity Estimation', desc: 'Multi-system Z-score divergence & biomarker stratification', icon: AlertCircle, color: 'text-risk', page: 'severity' },
+    { title: 'Research Report', desc: 'Clinical laboratory summary export & print stylesheet', icon: FileText, color: 'text-forest', page: 'report' },
   ];
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 font-sans text-body">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl p-8 bg-gradient-to-r from-cyan-950/40 via-dark-800 to-slate-900 border border-cyan-500/20 shadow-2xl">
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="p-8 rounded-panel bg-panel-alt border border-forest/30 shadow-card">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              Computational Neuroscience + Multimodal AI Architecture
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-border text-forest text-xs font-mono">
+              <Sparkles className="w-3.5 h-3.5 text-forest" />
+              Computational Neuroscience &amp; Multimodal AI Architecture
             </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">
-              NeuroFusion <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400">AI</span>
+            <h1 className="text-3xl font-serif font-bold tracking-tight text-forest">
+              NeuroFusion <span className="font-serif italic font-normal text-deep">AI</span>
             </h1>
-            <p className="text-slate-300 text-sm max-w-2xl leading-relaxed">
+            <p className="text-body-light text-sm max-w-2xl leading-relaxed font-sans">
               Research-oriented multimodal schizophrenia detection utilizing machine-invariant EEG frequency dynamics, 3D anatomical atlas parcellation morphometry, and synergistic cross-modal decision fusion.
             </p>
+            <div className="pt-1">
+              <VerticalBars bars={5} />
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
+            <Button
+              variant="primary"
+              size="md"
               onClick={() => onNavigate('data-input')}
-              className="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs transition-all shadow-glow-cyan flex items-center gap-2"
+              className="flex items-center gap-2 shadow-sm"
             >
               <Database className="w-4 h-4" />
-              Load Cohort Sample
-            </button>
-            <button
+              <span>Load Cohort Sample</span>
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
               onClick={() => onNavigate('prediction')}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all flex items-center gap-2"
+              className="flex items-center gap-2"
             >
-              <Cpu className="w-4 h-4 text-cyan-400" />
-              View Predictions
-            </button>
+              <Cpu className="w-4 h-4 text-forest" />
+              <span>View Predictions</span>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Medical / Research Disclaimer */}
-      <ResearchDisclaimer />
+      <ResearchDisclaimer compact />
 
       {/* System Status Pipeline Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -101,7 +108,6 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             meta: '124 Enrolled Subjects',
             perf: '77.43% Mean CV',
             icon: Activity,
-            color: 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400',
           },
           {
             label: 'MRI Pipeline',
@@ -109,7 +115,6 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             meta: '77 QC-Passed Scans',
             perf: '72.58% Mean CV',
             icon: Brain,
-            color: 'border-cyan-500/30 bg-cyan-500/5 text-cyan-400',
           },
           {
             label: 'Fusion Model',
@@ -117,7 +122,6 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             meta: '201 Multimodal Cohort',
             perf: '82.02% (89.5% Peak)',
             icon: Cpu,
-            color: 'border-violet-500/30 bg-violet-500/5 text-violet-400',
           },
           {
             label: 'Explainability',
@@ -125,31 +129,29 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             meta: 'Gradient & Biomarker Attribution',
             perf: 'Available',
             icon: Sparkles,
-            color: 'border-amber-500/30 bg-amber-500/5 text-amber-400',
           },
           {
             label: 'Clinical Report',
             status: pipelines?.reporting?.status || 'ready',
-            meta: 'Interactive & Printable JSON',
+            meta: 'Print-Ready Dossier',
             perf: 'Export Ready',
             icon: FileText,
-            color: 'border-indigo-500/30 bg-indigo-500/5 text-indigo-400',
           },
         ].map((item, idx) => (
           <div
             key={idx}
-            className="p-4 rounded-xl glass-panel glass-panel-hover flex flex-col justify-between border space-y-3"
+            className="p-5 rounded-panel bg-white border border-border shadow-card flex flex-col justify-between space-y-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-300">{item.label}</span>
-              <span className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <CheckCircle2 className="w-3 h-3" />
+              <span className="text-xs font-semibold text-forest font-serif">{item.label}</span>
+              <Badge variant="healthy">
+                <CheckCircle2 className="w-3 h-3 mr-1" />
                 ONLINE
-              </span>
+              </Badge>
             </div>
             <div>
-              <span className="text-lg font-bold text-white block tracking-tight">{item.perf}</span>
-              <span className="text-[11px] text-slate-400 block">{item.meta}</span>
+              <span className="text-xl font-serif font-bold text-forest block tracking-tight">{item.perf}</span>
+              <span className="text-[11px] text-muted block font-mono mt-0.5">{item.meta}</span>
             </div>
           </div>
         ))}
@@ -158,125 +160,137 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       {/* Summary Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* EEG Model Card */}
-        <div className="p-5 rounded-2xl glass-panel border border-slate-800 space-y-4">
+        <div className="p-6 rounded-panel bg-white border border-border shadow-card space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+              <div className="w-9 h-9 rounded-full bg-panel-light text-forest flex items-center justify-center">
                 <Activity className="w-4 h-4" />
               </div>
-              <h3 className="font-bold text-sm text-white">EEG Electrophysiology</h3>
+              <div>
+                <h3 className="font-serif font-semibold text-base text-forest">EEG Electrophysiology</h3>
+                <span className="text-xs text-muted">Scalp Dynamics</span>
+              </div>
             </div>
-            <span className="text-xs font-mono text-emerald-400 font-semibold">77.43% Acc</span>
+            <Badge variant="healthy">77.43% Acc</Badge>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs text-body-light leading-relaxed font-sans">
             Machine-invariant frequency PSD decomposition, 8 bilateral homologous asymmetry pairs, and clinical frontal theta/alpha slowing ratios.
           </p>
-          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
+          <div className="pt-2 border-t border-border flex items-center justify-between text-xs font-mono text-muted">
             <span>Ensemble: ET + RF + XGB + SVM</span>
-            <span className="text-slate-300 font-semibold">124 Subjects</span>
+            <span className="text-body font-semibold">124 Subjects</span>
           </div>
         </div>
 
         {/* MRI Model Card */}
-        <div className="p-5 rounded-2xl glass-panel border border-slate-800 space-y-4">
+        <div className="p-6 rounded-panel bg-white border border-border shadow-card space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20">
+              <div className="w-9 h-9 rounded-full bg-panel-light text-mri flex items-center justify-center">
                 <Brain className="w-4 h-4" />
               </div>
-              <h3 className="font-bold text-sm text-white">3D MRI Morphometry</h3>
+              <div>
+                <h3 className="font-serif font-semibold text-base text-forest">3D MRI Morphometry</h3>
+                <span className="text-xs text-muted">Structural Atlas</span>
+              </div>
             </div>
-            <span className="text-xs font-mono text-cyan-400 font-semibold">72.58% Acc</span>
+            <Badge variant="mri">72.58% Acc</Badge>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs text-body-light leading-relaxed font-sans">
             111-dimensional Anatomical Atlas Parcellation capturing DLPFC, Superior Temporal Gyrus, Ventricle-to-Brain Ratio (VBR), and 3D GLCM textures.
           </p>
-          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
+          <div className="pt-2 border-t border-border flex items-center justify-between text-xs font-mono text-muted">
             <span>Ensemble: 111-ROI Atlas + Radiomics</span>
-            <span className="text-slate-300 font-semibold">77 QC-Passed</span>
+            <span className="text-body font-semibold">77 QC-Passed</span>
           </div>
         </div>
 
         {/* Multimodal Decision Fusion Card */}
-        <div className="p-5 rounded-2xl glass-panel border border-violet-500/20 space-y-4 shadow-glow-violet">
+        <div className="p-6 rounded-panel bg-panel-alt border border-forest/40 shadow-card space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-violet-500/10 text-violet-400 flex items-center justify-center border border-violet-500/20">
+              <div className="w-9 h-9 rounded-full bg-white text-forest flex items-center justify-center border border-forest/20">
                 <Cpu className="w-4 h-4" />
               </div>
-              <h3 className="font-bold text-sm text-white">Multimodal Fusion</h3>
+              <div>
+                <h3 className="font-serif font-semibold text-base text-forest">Multimodal Fusion</h3>
+                <span className="text-xs text-muted">Synergistic Consensus</span>
+              </div>
             </div>
-            <span className="text-xs font-mono text-violet-400 font-bold">82.02% (89.5% Peak)</span>
+            <Badge variant="forest">82.02% (89.5% Peak)</Badge>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs text-body-light leading-relaxed font-sans">
             Synergistic cross-modal high-confidence decision fusion exploiting the complementary orthogonal dynamics of electrical and structural neuroimaging.
           </p>
-          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono text-slate-400">
+          <div className="pt-2 border-t border-border flex items-center justify-between text-xs font-mono text-muted">
             <span>Diagnostic Gain: +4.59% Residual</span>
-            <span className="text-violet-300 font-semibold">201 Cohort</span>
+            <span className="text-forest font-semibold">201 Cohort</span>
           </div>
         </div>
       </div>
 
       {/* Visual Pipeline Architecture */}
-      <div className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-6">
+      <div className="p-6 rounded-panel bg-white border border-border shadow-card space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-              <GitBranch className="w-4 h-4 text-cyan-400" />
-              System Architecture & Analytical Flow
+            <h2 className="text-base font-serif font-semibold text-forest tracking-tight flex items-center gap-2">
+              <GitBranch className="w-4 h-4 text-forest" />
+              System Architecture &amp; Analytical Flow
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-body-light font-sans mt-0.5">
               Sequential research-grade pipeline from multi-site biosignal acquisition to clinical reporting
             </p>
           </div>
-          <span className="text-xs font-mono text-slate-500">End-to-End Pipeline</span>
+          <Badge variant="mint">End-to-End Pipeline</Badge>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-9 gap-3">
           {pipelineSteps.map((step, idx) => {
             const Icon = step.icon;
             return (
-              <div
+              <button
                 key={idx}
-                className="relative p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/30 transition-all flex flex-col items-center text-center space-y-2 group"
+                onClick={() => onNavigate(step.page)}
+                className="p-3.5 rounded-card bg-panel-light border border-border hover:border-forest/60 hover:bg-white transition-all flex flex-col items-center text-center space-y-2 group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-white border border-border flex items-center justify-center group-hover:scale-110 group-hover:border-forest transition-transform">
                   <Icon className={`w-4 h-4 ${step.color}`} />
                 </div>
-                <span className="text-[11px] font-bold text-slate-200 leading-tight">
+                <span className="text-[11px] font-semibold text-forest leading-tight font-serif">
                   {step.title}
                 </span>
-                <span className="text-[10px] text-slate-400 leading-snug line-clamp-3">
+                <span className="text-[10px] text-body-light leading-snug line-clamp-3 font-sans">
                   {step.desc}
                 </span>
-                <div className="text-[9px] font-mono text-slate-500 mt-auto pt-1">
-                  Step 0{idx + 1}
+                <div className="text-[9px] font-mono text-muted mt-auto pt-1 group-hover:text-forest">
+                  Step 0{idx + 1} &rarr;
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
 
       {/* Quick Access Preset Subjects */}
-      <div className="p-6 rounded-2xl glass-panel border border-slate-800 space-y-4">
+      <div className="p-6 rounded-panel bg-white border border-border shadow-card space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Database className="w-4 h-4 text-violet-400" />
+            <h2 className="text-base font-serif font-semibold text-forest flex items-center gap-2">
+              <Database className="w-4 h-4 text-forest" />
               Enrolled Benchmark Subjects (Quick-Load)
             </h2>
-            <p className="text-xs text-slate-400">
-              Select any pre-enrolled real subject to instantly evaluate across all 9 research views
+            <p className="text-xs text-body-light font-sans mt-0.5">
+              Select any pre-enrolled real subject to evaluate across all research views
             </p>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onNavigate('data-input')}
-            className="text-xs text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1 transition-colors"
+            className="text-xs text-forest hover:underline flex items-center gap-1"
           >
-            All Subjects <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+            All Subjects <ArrowRight className="w-3.5 h-3.5 ml-1" />
+          </Button>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -285,18 +299,16 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               key={sample.id}
               onClick={() => onQuickLoadSample(sample)}
               disabled={isLoading}
-              className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 hover:bg-slate-850 text-left transition-all group disabled:opacity-50"
+              className="p-3 rounded-card bg-panel-light border border-border hover:border-forest/60 hover:bg-white text-left transition-all group disabled:opacity-50"
             >
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                  {sample.type}
-                </span>
-                <span className={`w-2 h-2 rounded-full ${sample.label === 1 ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+                <Badge variant="mint">{sample.type}</Badge>
+                <span className={`w-2 h-2 rounded-full ${sample.label === 1 ? 'bg-risk' : 'bg-healthy'}`} />
               </div>
-              <span className="text-xs font-semibold text-slate-200 block truncate group-hover:text-cyan-300">
+              <span className="text-xs font-semibold text-forest block truncate font-mono">
                 {sample.id}
               </span>
-              <span className="text-[10px] text-slate-400 block truncate mt-0.5">
+              <span className="text-[10px] text-muted block truncate mt-0.5 font-sans">
                 {sample.label_name}
               </span>
             </button>
@@ -306,3 +318,5 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
     </div>
   );
 };
+
+export default OverviewView;

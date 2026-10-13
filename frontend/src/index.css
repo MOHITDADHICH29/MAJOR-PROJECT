@@ -3,53 +3,194 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-page: #FAFCFB;
+    --panel-default: #DCE9E6;
+    --panel-light: #E8F1EF;
+    --panel-alt: #C9D6D3;
+    --section-deep: #557A74;
+    --primary-forest: #1F4D45;
+    --text-body: #3A4A47;
+    --text-muted: #7A8A87;
+    --border-color: #D5E2DF;
+    --accent-lime: #7CFF3F;
+    --color-healthy: #2E9E73;
+    --color-mri: #4F6D8F;
+    --color-warning: #D99A2B;
+    --color-risk: #C8475A;
+  }
+
   body {
-    background-color: #070A12;
-    color: #F3F4F6;
-    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-body);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
   }
 }
 
-/* Custom glassmorphic cards */
+/* Editorial Minimal Medical Panels */
+.panel-card {
+  background-color: #FFFFFF;
+  border: 1px solid #D5E2DF;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(31, 77, 69, 0.04);
+}
+
+.panel-card-hover {
+  transition: all 0.25s ease-out;
+}
+.panel-card-hover:hover {
+  border-color: #1F4D45;
+  box-shadow: 0 4px 12px rgba(31, 77, 69, 0.08);
+}
+
+.panel-mint {
+  background-color: #E8F1EF;
+  border: 1px solid #D5E2DF;
+  border-radius: 6px;
+}
+
+.panel-alt {
+  background-color: #DCE9E6;
+  border: 1px solid #C9D6D3;
+  border-radius: 6px;
+}
+
+.panel-deep {
+  background-color: #557A74;
+  color: #FFFFFF;
+  border-radius: 6px;
+}
+
+/* Glass-panel fallback remapped to clean white editorial card */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid #D5E2DF;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(31, 77, 69, 0.04);
 }
 
 .glass-panel-hover {
-  transition: all 0.25s ease-in-out;
+  transition: all 0.2s ease-out;
 }
-
 .glass-panel-hover:hover {
-  background: rgba(30, 41, 59, 0.75);
-  border-color: rgba(6, 182, 212, 0.3);
-  box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1);
+  border-color: #1F4D45;
+  box-shadow: 0 4px 12px rgba(31, 77, 69, 0.08);
 }
 
-/* Custom scrollbars */
+/* Animated Vertical Bars Divider */
+.vertical-bars-divider {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+  padding: 0 2px;
+}
+
+.vertical-bars-divider span {
+  display: block;
+  width: 2px;
+  background-color: #1F4D45;
+  border-radius: 2px;
+  animation: bar-rise 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+.vertical-bars-divider span:nth-child(1) { height: 6px; animation-delay: 0.0s; }
+.vertical-bars-divider span:nth-child(2) { height: 12px; animation-delay: 0.15s; }
+.vertical-bars-divider span:nth-child(3) { height: 18px; animation-delay: 0.3s; }
+.vertical-bars-divider span:nth-child(4) { height: 10px; animation-delay: 0.45s; }
+.vertical-bars-divider span:nth-child(5) { height: 14px; animation-delay: 0.6s; }
+
+@keyframes bar-rise {
+  0% { transform: scaleY(0.4); opacity: 0.6; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+
+/* Underline-only form input */
+.input-underline {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #D5E2DF;
+  padding: 8px 0;
+  color: #3A4A47;
+  border-radius: 0;
+  transition: border-color 0.2s ease;
+}
+.input-underline:focus {
+  outline: none;
+  border-bottom-color: #1F4D45;
+  box-shadow: none;
+}
+
+/* Soft minimal scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F19;
+  background: #FAFCFB;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1F2937;
+  background: #D5E2DF;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: #A2B0AD;
 }
 
-/* Pulse animation */
-@keyframes subtle-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+/* Fade and slide animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.animate-subtle-pulse {
-  animation: subtle-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Print Styles for Clinical Reports */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .panel-card, .panel-mint, .glass-panel {
+    border: 1px solid #CCCCCC !important;
+    box-shadow: none !important;
+    background: #FFFFFF !important;
+  }
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

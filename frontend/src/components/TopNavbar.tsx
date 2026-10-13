@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldCheck, Cpu, Database, UserCheck, RefreshCw } from 'lucide-react';
-import { SystemStatusResponse } from '../types';
+import {
+  Database,
+  RefreshCw,
+  Stethoscope,
+  Terminal,
+  LogOut,
+  ChevronDown,
+  Search
+} from 'lucide-react';
+import { SystemStatusResponse, UserProfile, UserRole } from '../types';
+import { Badge } from './ui';
 
 interface TopNavbarProps {
   pageTitle: string;
   activeSampleId?: string;
   statusData?: SystemStatusResponse | null;
   onRefreshStatus?: () => void;
+  currentUser?: UserProfile | null;
+  onOpenRoleGateway?: () => void;
+  onLogout?: () => void;
+  activeRole?: UserRole;
+  onSelectRole?: (role: UserRole) => void;
 }
 
 export const TopNavbar: React.FC<TopNavbarProps> = ({
@@ -14,6 +28,10 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   activeSampleId,
   statusData,
   onRefreshStatus,
+  currentUser,
+  onOpenRoleGateway,
+  onLogout,
+  activeRole = 'doctor',
 }) => {
   const [timeStr, setTimeStr] = useState('');
 
@@ -32,48 +50,55 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   const fusionOk = statusData?.pipelines?.fusion_pipeline?.status === 'ready';
 
   return (
-    <header className="h-16 px-6 border-b border-slate-800/80 bg-dark-900/60 backdrop-blur-md sticky top-0 z-20 flex items-center justify-between">
-      {/* Page Title */}
+    <header className="h-16 px-6 border-b border-border bg-white/95 backdrop-blur-sm sticky top-0 z-20 flex items-center justify-between">
+      {/* Page Title & Breadcrumb Context */}
       <div className="flex items-center gap-3">
-        <h1 className="text-lg font-bold tracking-tight text-white capitalize flex items-center gap-2">
-          {pageTitle}
-        </h1>
-        <span className="hidden md:inline-flex text-xs px-2.5 py-0.5 rounded-full font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-          Research Prototype
-        </span>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2 text-[11px] font-mono text-muted">
+            <span>NeuroFusion AI</span>
+            <span>/</span>
+            <span className="text-forest capitalize">{activeRole} Workspace</span>
+          </div>
+          <h1 className="text-xl font-serif font-semibold tracking-tight text-forest capitalize">
+            {pageTitle}
+          </h1>
+        </div>
+
+        <Badge variant="mint" className="hidden lg:inline-flex ml-2">
+          MNI-152 Harmonized
+        </Badge>
       </div>
 
       {/* Right controls */}
-      <div className="flex items-center gap-4">
-        {/* Modality Status Indicators */}
-        <div className="hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-mono">
+      <div className="flex items-center gap-3">
+        {/* Modality Status Badges */}
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-panel-light border border-border text-xs font-mono">
           <div className="flex items-center gap-1.5" title="EEG Machine-Invariant Ensemble">
-            <span className={`w-2 h-2 rounded-full ${eegOk ? 'bg-emerald-400 shadow-glow-emerald' : 'bg-rose-500'}`} />
-            <span className="text-slate-300">EEG</span>
+            <span className={`w-2 h-2 rounded-full ${eegOk ? 'bg-healthy' : 'bg-risk'}`} />
+            <span className="text-forest font-semibold">EEG</span>
           </div>
-          <span className="text-slate-600">|</span>
+          <span className="text-border">|</span>
           <div className="flex items-center gap-1.5" title="MRI 111-ROI Atlas Parcellation">
-            <span className={`w-2 h-2 rounded-full ${mriOk ? 'bg-emerald-400 shadow-glow-emerald' : 'bg-rose-500'}`} />
-            <span className="text-slate-300">MRI</span>
+            <span className={`w-2 h-2 rounded-full ${mriOk ? 'bg-mri' : 'bg-risk'}`} />
+            <span className="text-mri font-semibold">MRI</span>
           </div>
-          <span className="text-slate-600">|</span>
+          <span className="text-border">|</span>
           <div className="flex items-center gap-1.5" title="Multimodal Synergistic Decision Fusion">
-            <span className={`w-2 h-2 rounded-full ${fusionOk ? 'bg-cyan-400 shadow-glow-cyan' : 'bg-rose-500'}`} />
-            <span className="text-slate-300">Fusion</span>
+            <span className={`w-2 h-2 rounded-full ${fusionOk ? 'bg-forest' : 'bg-risk'}`} />
+            <span className="text-forest font-semibold">Fusion</span>
           </div>
         </div>
 
         {/* Current Active Sample */}
         {activeSampleId && (
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300 font-mono">
-            <Database className="w-3.5 h-3.5 text-violet-400" />
-            <span className="hidden sm:inline">Active:</span>
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-border text-xs text-forest font-mono">
+            <Database className="w-3.5 h-3.5 text-muted" />
             <span className="font-semibold">{activeSampleId}</span>
           </div>
         )}
 
-        {/* Clock */}
-        <span className="text-xs font-mono text-slate-400 hidden sm:inline">
+        {/* UTC Clock */}
+        <span className="text-xs font-mono text-muted hidden xl:inline">
           {timeStr}
         </span>
 
@@ -81,20 +106,61 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
         {onRefreshStatus && (
           <button
             onClick={onRefreshStatus}
-            className="p-2 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-slate-800/80 transition-colors"
+            className="p-2 rounded-full text-muted hover:text-forest hover:bg-panel-light transition-colors"
             title="Refresh System Status"
+            aria-label="Refresh System Status"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         )}
 
-        {/* Researcher Persona */}
-        <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
-          <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-cyan-400 font-bold text-xs">
-            RES
-          </div>
+        {/* Role Selector Gateway Button */}
+        <div className="flex items-center gap-2 pl-3 border-l border-border">
+          <button
+            onClick={onOpenRoleGateway}
+            className="px-3.5 py-1.5 rounded-full bg-panel-light hover:bg-panel border border-border font-sans text-xs text-forest transition-all flex items-center gap-1.5 font-medium"
+            title="Switch Workspace Role"
+          >
+            {activeRole === 'doctor' && <Stethoscope className="w-3.5 h-3.5 text-forest" />}
+            {activeRole === 'developer' && <Terminal className="w-3.5 h-3.5 text-forest" />}
+
+            <span className="capitalize">
+              {activeRole}
+            </span>
+            <ChevronDown className="w-3 h-3 text-muted" />
+          </button>
+
+          {/* User Profile Avatar */}
+          {currentUser ? (
+            <div className="flex items-center gap-2">
+              <div
+                className="w-8 h-8 rounded-full bg-forest text-white flex items-center justify-center font-serif font-bold text-xs shadow-sm"
+                title={`${currentUser.name} (${currentUser.title})`}
+              >
+                {currentUser.name.charAt(0)}
+              </div>
+              {onLogout && (
+                <button
+                  onClick={onLogout}
+                  className="p-1.5 rounded-full text-muted hover:text-risk hover:bg-risk-light transition-colors"
+                  title="Sign out"
+                  aria-label="Sign out"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={onOpenRoleGateway}
+              className="text-xs font-sans text-forest hover:underline font-semibold"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </div>
     </header>
   );
 };
+export default TopNavbar;

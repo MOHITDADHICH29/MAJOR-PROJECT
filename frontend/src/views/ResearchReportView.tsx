@@ -8,14 +8,12 @@ import {
   AlertTriangle,
   Brain,
   Activity,
-  Cpu,
   ShieldAlert,
-  Share2,
-  Calendar,
   Layers
 } from 'lucide-react';
 import { ReportObject, EEGAnalysisResult, MRIAnalysisResult, MultimodalAnalysisResult } from '../types';
 import { ResearchDisclaimer } from '../components/ResearchDisclaimer';
+import { Badge, Button } from '../components/ui';
 
 interface ResearchReportViewProps {
   activeSampleId?: string;
@@ -34,6 +32,10 @@ export const ResearchReportView: React.FC<ResearchReportViewProps> = ({
 }) => {
   const [report, setReport] = useState<ReportObject | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  React.useEffect(() => {
+    handleGenerate();
+  }, []);
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -61,47 +63,54 @@ export const ResearchReportView: React.FC<ResearchReportViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 pb-12 font-sans text-body">
+      {/* Title & Top Toolbar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-panel bg-white border border-border shadow-card">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <FileText className="w-6 h-6 text-cyan-400" />
-            Clinical Research Analytics Report
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-forest" />
+            <h1 className="text-2xl font-serif text-forest font-semibold tracking-tight">
+              Clinical Research Analytics Report
+            </h1>
+          </div>
+          <p className="text-xs text-body-light font-sans mt-0.5">
             Comprehensive synthesis of electrophysiology, 3D anatomical morphometry, and cross-modal decision fusion
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="md"
             onClick={handleGenerate}
             disabled={isGenerating}
-            className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs shadow-glow-cyan flex items-center gap-2 transition-all disabled:opacity-50"
           >
-            <Sparkles className="w-4 h-4" />
-            {isGenerating ? 'Synthesizing Report...' : report ? 'Regenerate Report' : 'Generate Report'}
-          </button>
+            <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+            <span>{isGenerating ? 'Synthesizing...' : report ? 'Regenerate' : 'Generate'}</span>
+          </Button>
 
           {report && (
             <>
-              <button
+              <Button
+                variant="mint"
+                size="md"
                 onClick={handleDownloadJSON}
-                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center gap-2 transition-all"
                 title="Download JSON Report"
               >
-                <Download className="w-4 h-4 text-cyan-400" />
-                <span className="hidden sm:inline">JSON</span>
-              </button>
-              <button
+                <Download className="w-3.5 h-3.5 mr-1.5" />
+                <span>JSON Export</span>
+              </Button>
+
+              <Button
+                variant="primary"
+                size="md"
                 onClick={handlePrint}
-                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center gap-2 transition-all"
+                className="shadow-sm"
                 title="Print Report"
               >
-                <Printer className="w-4 h-4 text-violet-400" />
-                <span className="hidden sm:inline">Print</span>
-              </button>
+                <Printer className="w-3.5 h-3.5 mr-1.5" />
+                <span>Print Document</span>
+              </Button>
             </>
           )}
         </div>
@@ -109,199 +118,234 @@ export const ResearchReportView: React.FC<ResearchReportViewProps> = ({
 
       <ResearchDisclaimer compact />
 
-      {/* Report Document Container */}
-      {report ? (
-        <div id="printable-report" className="p-8 md:p-12 rounded-2xl glass-panel border border-slate-800 space-y-8 bg-slate-900/90 text-slate-200 max-w-4xl mx-auto shadow-2xl">
-          {/* Report Header */}
-          <div className="border-b border-slate-700 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Mint Backdrop hosting the Paper-like White Document */}
+      <div className="p-4 sm:p-8 rounded-panel bg-panel-light border border-border">
+        {report ? (
+          <div id="printable-report" className="p-8 sm:p-12 rounded-panel bg-white border border-border shadow-card space-y-8 max-w-4xl mx-auto text-body">
+            {/* Report Header */}
+            <div className="border-b border-border pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="text-xs font-mono text-muted uppercase tracking-widest font-semibold block mb-1">
+                  NEUROFUSION AI &bull; MULTIMODAL NEUROSCIENCE RESEARCH PLATFORM
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-serif text-forest font-semibold tracking-tight">
+                  Multimodal Diagnostic Synthesis Report
+                </h2>
+                <span className="text-xs text-muted font-mono">
+                  Generated: {report.timestamp}
+                </span>
+              </div>
+
+              <div className="p-3 px-4 rounded-card bg-panel-light border border-border font-mono text-xs space-y-1">
+                <div className="text-muted">Subject ID: <strong className="text-forest">{report.subject_id}</strong></div>
+                <div className="text-muted">Protocol: <strong className="text-forest">EEG + 3D MRI</strong></div>
+              </div>
+            </div>
+
+            {/* Multimodal Fusion Summary Box */}
+            <div className="p-6 rounded-card bg-panel-alt border border-border space-y-3">
+              <span className="text-[10px] font-mono text-forest uppercase tracking-wider font-bold block">
+                Primary Multimodal Synthesis
+              </span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <h3 className="text-xl font-serif font-semibold text-forest">
+                  {report.multimodal_fusion.final_prediction}
+                </h3>
+                <span className="text-xl font-serif font-bold text-forest font-mono">
+                  Confidence: {report.multimodal_fusion.confidence.toFixed(1)}%
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-4 text-xs font-mono text-muted pt-2 border-t border-border">
+                <span>Strategy: {report.multimodal_fusion.strategy}</span>
+                <span className="text-healthy font-semibold">Synergy Gain: {report.multimodal_fusion.synergy_gain}</span>
+              </div>
+            </div>
+
+            {/* Dual Modality Breakdown */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* EEG Section */}
+              <div className="p-5 rounded-card bg-panel-light border border-border space-y-3">
+                <div className="flex items-center gap-2 text-forest font-bold text-xs uppercase font-mono">
+                  <Activity className="w-4 h-4 text-forest" />
+                  10-20 EEG Electrophysiology
+                </div>
+                <div className="space-y-1.5 text-xs font-sans">
+                  <div className="flex justify-between">
+                    <span className="text-muted">Prediction:</span>
+                    <strong className="text-body font-semibold">{report.eeg_analysis.model_prediction}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted">Confidence:</span>
+                    <span className="text-forest font-mono font-bold">{report.eeg_analysis.confidence.toFixed(1)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted">Preprocessing:</span>
+                    <span className="text-body-light text-[11px] font-mono">{report.eeg_analysis.preprocessing}</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border">
+                  <span className="text-[10px] uppercase font-mono text-muted block mb-1">Key Biomarkers</span>
+                  <ul className="space-y-1 text-xs text-body-light list-disc list-inside font-sans">
+                    {report.eeg_analysis.key_biomarkers.map((bm, i) => (
+                      <li key={i} className="text-[11px]">{bm}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* MRI Section */}
+              <div className="p-5 rounded-card bg-panel-light border border-border space-y-3">
+                <div className="flex items-center gap-2 text-mri font-bold text-xs uppercase font-mono">
+                  <Brain className="w-4 h-4 text-mri" />
+                  3D MRI Atlas Morphometry
+                </div>
+                <div className="space-y-1.5 text-xs font-sans">
+                  <div className="flex justify-between">
+                    <span className="text-muted">Prediction:</span>
+                    <strong className="text-body font-semibold">{report.mri_analysis.model_prediction}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted">Confidence:</span>
+                    <span className="text-mri font-mono font-bold">{report.mri_analysis.confidence.toFixed(1)}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted">Atlas Space:</span>
+                    <span className="text-body-light text-[11px] font-mono">{report.mri_analysis.preprocessing}</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-border">
+                  <span className="text-[10px] uppercase font-mono text-muted block mb-1">Key Biomarkers</span>
+                  <ul className="space-y-1 text-xs text-body-light list-disc list-inside font-sans">
+                    {report.mri_analysis.key_biomarkers.map((bm, i) => (
+                      <li key={i} className="text-[11px]">{bm}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Explainable AI Attribution */}
+            <div className="p-5 rounded-card bg-panel-light border border-border space-y-3 text-xs">
+              <span className="font-semibold text-forest text-xs font-mono uppercase block">
+                Explainable AI Attribution Profile (SHAP)
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <span className="text-muted block text-[11px] mb-1">Top Salient EEG Channels:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {report.explainable_ai.top_eeg_channels.map((ch) => (
+                      <Badge key={ch} variant="mint">{ch}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-muted block text-[11px] mb-1">Top Attributed Anatomical Regions:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {report.explainable_ai.top_imaging_regions.map((reg) => (
+                      <Badge key={reg} variant="mri">{reg}</Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted italic pt-2 border-t border-border">
+                {report.explainable_ai.attribution_standard}
+              </p>
+            </div>
+
+            {/* Model Provenance */}
+            <div className="p-5 rounded-card bg-panel-light border border-border space-y-2 text-xs font-mono">
+              <span className="font-semibold text-forest text-xs uppercase block">
+                Model Provenance &amp; Benchmark Reference
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-muted">
+                <div>EEG: <span className="text-body font-semibold">{report.model_provenance.eeg_model}</span></div>
+                <div>MRI: <span className="text-body font-semibold">{report.model_provenance.mri_model}</span></div>
+                <div>Fusion: <span className="text-body font-semibold">{report.model_provenance.multimodal_benchmark}</span></div>
+              </div>
+            </div>
+
+            {/* Final Diagnostic Conclusion Banner */}
+            {report.diagnostic_conclusion && (() => {
+              const dc = report.diagnostic_conclusion;
+              const isPositive = dc.has_schizophrenia;
+              return (
+                <div className={`rounded-card overflow-hidden border ${isPositive ? 'border-risk/40 bg-risk-light' : 'border-healthy/40 bg-healthy-light'}`}>
+                  <div className="p-6 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        {isPositive
+                          ? <ShieldAlert className="w-6 h-6 text-risk shrink-0" />
+                          : <CheckCircle2 className="w-6 h-6 text-healthy shrink-0" />
+                        }
+                        <div>
+                          <span className={`block text-[10px] font-mono uppercase tracking-widest font-bold ${isPositive ? 'text-risk' : 'text-healthy'}`}>
+                            Final Computational Verdict
+                          </span>
+                          <span className="text-2xl font-serif font-bold tracking-tight text-body">
+                            {dc.verdict}
+                          </span>
+                        </div>
+                      </div>
+                      <Badge variant={isPositive ? 'risk' : 'healthy'}>
+                        {dc.verdict_badge} &bull; {dc.confidence_pct.toFixed(1)}% Confidence
+                      </Badge>
+                    </div>
+
+                    <p className="text-xs text-body-light leading-relaxed font-sans pt-2 border-t border-border">
+                      {dc.clinical_summary}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Clinician Sign-off Block */}
+            <div className="pt-8 border-t border-border flex flex-col sm:flex-row sm:items-end justify-between gap-6 text-xs font-sans text-muted">
+              <div>
+                <div className="h-10 border-b border-border w-64 mb-2" />
+                <span className="font-semibold text-body">Attending Neuropsychiatrist Signature</span>
+                <span className="block text-[11px] text-muted">Dr. Elena Vance, MD, PhD &bull; License #CP-90214</span>
+              </div>
+              <div className="text-right font-mono text-[11px]">
+                <span>Date: {new Date().toLocaleDateString()}</span>
+                <span className="block text-muted">Institutional IRB #2026-089</span>
+              </div>
+            </div>
+
+            {/* Formal Medical Disclaimer Footer */}
+            <div className="pt-4 border-t border-border text-center text-[10px] text-muted leading-relaxed font-mono">
+              <p>{report.research_disclaimer}</p>
+              <p className="mt-1 font-semibold text-forest">NEUROFUSION AI &bull; MULTIMODAL NEUROSCIENCE RESEARCH PROTOCOL</p>
+            </div>
+          </div>
+        ) : (
+          <div className="p-12 text-center space-y-4 max-w-lg mx-auto bg-white rounded-card border border-border shadow-card">
+            <div className="w-12 h-12 rounded-full bg-panel-light flex items-center justify-center mx-auto text-forest">
+              <FileText className="w-6 h-6" />
+            </div>
             <div>
-              <div className="flex items-center gap-2 text-cyan-400 font-mono text-xs uppercase tracking-widest font-bold mb-1">
-                <Brain className="w-4 h-4" />
-                NEUROFUSION AI RESEARCH PLATFORM
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                Multimodal Diagnostic Synthesis Report
-              </h2>
-              <span className="text-xs text-slate-400">
-                Generated on: {report.timestamp}
-              </span>
+              <h3 className="text-xl font-serif font-semibold text-forest">Generate Clinical Report</h3>
+              <p className="text-xs text-body-light mt-1 font-sans leading-relaxed">
+                Synthesizes subject diagnostics, feature values, model predictions, and research disclaimers into a unified printable document.
+              </p>
             </div>
-
-            <div className="p-3 rounded-xl bg-slate-850 border border-slate-700 font-mono text-xs space-y-1">
-              <div className="text-slate-400">Subject ID: <span className="text-white font-bold">{report.subject_id}</span></div>
-              <div className="text-slate-400">Modalities: <span className="text-cyan-300">EEG + 3D MRI</span></div>
-            </div>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="shadow-sm mx-auto"
+            >
+              <Sparkles className="w-4 h-4 mr-1.5" />
+              <span>{isGenerating ? 'Synthesizing...' : 'Generate Clinical Report'}</span>
+            </Button>
           </div>
-
-          {/* Multimodal Fusion Summary Box */}
-          <div className="p-6 rounded-xl bg-gradient-to-r from-violet-950/40 to-slate-900 border border-violet-500/30 space-y-3">
-            <span className="text-[10px] font-mono text-violet-400 uppercase tracking-wider font-bold block">
-              Primary Multimodal Synthesis
-            </span>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <h3 className="text-lg font-bold text-white">
-                {report.multimodal_fusion.final_prediction}
-              </h3>
-              <span className="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 font-mono">
-                Confidence: {report.multimodal_fusion.confidence.toFixed(1)}%
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-4 text-xs font-mono text-slate-400 pt-1 border-t border-slate-800">
-              <span>Strategy: {report.multimodal_fusion.strategy}</span>
-              <span className="text-violet-300">Synergy Gain: {report.multimodal_fusion.synergy_gain}</span>
-            </div>
-          </div>
-
-          {/* Dual Modality Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* EEG Section */}
-            <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
-              <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase font-mono">
-                <Activity className="w-4 h-4" />
-                EEG Electrophysiology Analysis
-              </div>
-              <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Prediction:</span>
-                  <span className="text-white font-semibold">{report.eeg_analysis.model_prediction}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Confidence:</span>
-                  <span className="text-emerald-400 font-mono font-bold">{report.eeg_analysis.confidence.toFixed(1)}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Preprocessing:</span>
-                  <span className="text-slate-300 text-[10px]">{report.eeg_analysis.preprocessing}</span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-slate-800/80">
-                <span className="text-[10px] uppercase font-mono text-slate-400 block mb-1">Key Biomarkers</span>
-                <ul className="space-y-1 text-xs text-slate-300 list-disc list-inside">
-                  {report.eeg_analysis.key_biomarkers.map((bm, i) => (
-                    <li key={i} className="text-[11px]">{bm}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* MRI Section */}
-            <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
-              <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs uppercase font-mono">
-                <Brain className="w-4 h-4" />
-                3D MRI Morphometry Analysis
-              </div>
-              <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Prediction:</span>
-                  <span className="text-white font-semibold">{report.mri_analysis.model_prediction}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Confidence:</span>
-                  <span className="text-cyan-400 font-mono font-bold">{report.mri_analysis.confidence.toFixed(1)}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Preprocessing:</span>
-                  <span className="text-slate-300 text-[10px]">{report.mri_analysis.preprocessing}</span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-slate-800/80">
-                <span className="text-[10px] uppercase font-mono text-slate-400 block mb-1">Key Biomarkers</span>
-                <ul className="space-y-1 text-xs text-slate-300 list-disc list-inside">
-                  {report.mri_analysis.key_biomarkers.map((bm, i) => (
-                    <li key={i} className="text-[11px]">{bm}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Explainable AI & Model Attribution */}
-          <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3 text-xs">
-            <span className="font-bold text-slate-200 text-xs font-mono uppercase block text-cyan-400">
-              Explainable AI Attribution Profile
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <span className="text-slate-400 block text-[11px] mb-1">Top Salient EEG Channels:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {report.explainable_ai.top_eeg_channels.map((ch) => (
-                    <span key={ch} className="px-2 py-0.5 rounded bg-slate-800 text-emerald-300 font-mono text-xs">
-                      {ch}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <span className="text-slate-400 block text-[11px] mb-1">Top Attributed Anatomical Regions:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {report.explainable_ai.top_imaging_regions.map((reg) => (
-                    <span key={reg} className="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono text-xs">
-                      {reg}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <p className="text-[10px] text-slate-400 italic pt-1 border-t border-slate-800">
-              {report.explainable_ai.attribution_standard}
-            </p>
-          </div>
-
-          {/* Model Provenance */}
-          <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2 text-xs font-mono">
-            <span className="font-bold text-slate-200 text-xs uppercase block text-violet-400">
-              Model Provenance & Benchmark Reference
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-400">
-              <div>EEG: <span className="text-slate-200">{report.model_provenance.eeg_model}</span></div>
-              <div>MRI: <span className="text-slate-200">{report.model_provenance.mri_model}</span></div>
-              <div>Fusion: <span className="text-slate-200">{report.model_provenance.multimodal_benchmark}</span></div>
-            </div>
-          </div>
-
-          {/* Research Limitations & Boundary */}
-          <div className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2 text-xs">
-            <span className="font-bold text-amber-400 text-xs font-mono uppercase flex items-center gap-1.5">
-              <ShieldAlert className="w-3.5 h-3.5" />
-              Scientific Limitations & Protocol Boundaries
-            </span>
-            <ul className="space-y-1 text-[11px] text-slate-400 list-disc list-inside">
-              {report.limitations.map((lim, i) => (
-                <li key={i}>{lim}</li>
-              ))}
-              <li>{report.severity_status}</li>
-            </ul>
-          </div>
-
-          {/* Formal Clinical Disclaimer Footer */}
-          <div className="pt-4 border-t border-slate-800 text-center text-[10px] text-slate-400 leading-relaxed font-mono">
-            <p>{report.research_disclaimer}</p>
-            <p className="mt-1">NEUROFUSION AI &bull; ACADEMIC RESEARCH PROTOTYPE &bull; NOT FOR MEDICAL USE</p>
-          </div>
-        </div>
-      ) : (
-        <div className="p-12 rounded-2xl glass-panel border border-dashed border-slate-800 text-center space-y-4 max-w-lg mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-slate-800/80 flex items-center justify-center mx-auto text-cyan-400">
-            <FileText className="w-7 h-7" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-white">Generate Research Report</h3>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Synthesizes all current subject diagnostics, feature values, model predictions, and research disclaimers into a unified printable document.
-            </p>
-          </div>
-          <button
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-xs shadow-glow-cyan transition-all flex items-center gap-2 mx-auto"
-          >
-            <Sparkles className="w-4 h-4" />
-            {isGenerating ? 'Synthesizing...' : 'Generate Report'}
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
+
+export default ResearchReportView;

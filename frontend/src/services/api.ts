@@ -98,5 +98,105 @@ export const apiService = {
       fusion_analysis: fusionAnalysis
     });
     return res.data.report;
+  },
+
+  // Role Authentication & Doctor Registration
+  async registerDoctor(formData: FormData) {
+    const res = await api.post('/auth/register-doctor', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return res.data;
+  },
+
+  async login(role: string, email?: string, password?: string) {
+    const res = await api.post('/auth/login', { role, email, password });
+    if (res.data?.token) {
+      localStorage.setItem('neuro_token', res.data.token);
+      localStorage.setItem('neuro_user', JSON.stringify(res.data.user));
+    }
+    return res.data;
+  },
+
+  async getCurrentUser() {
+    const token = localStorage.getItem('neuro_token');
+    if (!token) return null;
+    try {
+      const res = await api.get('/auth/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return res.data.user;
+    } catch {
+      localStorage.removeItem('neuro_token');
+      localStorage.removeItem('neuro_user');
+      return null;
+    }
+  },
+
+  async logout() {
+    const token = localStorage.getItem('neuro_token');
+    try {
+      if (token) {
+        await api.post('/auth/logout', {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+    } finally {
+      localStorage.removeItem('neuro_token');
+      localStorage.removeItem('neuro_user');
+    }
+  },
+
+  // Administrative Review System
+  async getDoctorRegistrations() {
+    const token = localStorage.getItem('neuro_token');
+    const res = await api.get('/admin/doctor-registrations', {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
+    return res.data?.registrations || [];
+  },
+
+  async reviewDoctorRegistration(doctorId: string, status: 'Approved' | 'Rejected', notes?: string) {
+    const token = localStorage.getItem('neuro_token');
+    const res = await api.post(`/admin/doctor-registrations/${doctorId}/review`, { status, notes }, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
+    return res.data;
+  },
+
+  getLicenseDocumentUrl(filename: string) {
+    const token = localStorage.getItem('neuro_token') || '';
+    return `/api/admin/license-document/${encodeURIComponent(filename)}?token=${encodeURIComponent(token)}`;
+  },
+
+  // Doctor Analysis Workspace
+  async getDoctorHistory() {
+    const res = await api.get('/doctor/history');
+    return res.data?.sessions || [];
+  },
+
+  async getDoctorAnalysisDetail(analysisId: string) {
+    const res = await api.get(`/doctor/analysis/${analysisId}`);
+    return res.data?.patient;
+  },
+
+  // Developer Research Laboratory
+  async getDeveloperModels() {
+    const res = await api.get('/developer/models');
+    return res.data.models;
+  },
+
+  async getDeveloperExperiments() {
+    const res = await api.get('/developer/experiments');
+    return res.data.experiments;
+  },
+
+  async getDeveloperDatasets() {
+    const res = await api.get('/developer/datasets');
+    return res.data;
+  },
+
+  async getDeveloperErrorAnalysis() {
+    const res = await api.get('/developer/error-analysis');
+    return res.data;
   }
 };

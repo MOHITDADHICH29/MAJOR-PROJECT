@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar, NavigationPage } from './components/Sidebar';
 import { TopNavbar } from './components/TopNavbar';
+import { PublicNavbar } from './components/public/PublicNavbar';
+import { LandingPageView } from './views/LandingPageView';
+import { DoctorWorkspaceView, DoctorSubPage } from './views/DoctorWorkspaceView';
+import { DeveloperConsoleView, DeveloperTab } from './views/DeveloperConsoleView';
 import { OverviewView } from './views/OverviewView';
 import { DataInputView } from './views/DataInputView';
 import { PredictionView } from './views/PredictionView';
@@ -10,6 +14,7 @@ import { EvaluationView } from './views/EvaluationView';
 import { ModelComparisonView } from './views/ModelComparisonView';
 import { SeverityEstimationView } from './views/SeverityEstimationView';
 import { ResearchReportView } from './views/ResearchReportView';
+import { RoleGatewayModal } from './components/auth/RoleGatewayModal';
 import { apiService } from './services/api';
 import {
   SystemStatusResponse,
@@ -22,14 +27,32 @@ import {
   EvaluationResponse,
   ModelComparisonResponse,
   SeverityResponse,
-  ReportObject
+  ReportObject,
+  UserRole,
+  UserProfile
 } from './types';
 
 export const App: React.FC = () => {
-  const [activePage, setActivePage] = useState<NavigationPage>('overview');
+  // Navigation & Authentication
+  const [activePage, setActivePage] = useState<NavigationPage>('landing');
+  const [doctorSubPage, setDoctorSubPage] = useState<DoctorSubPage>('overview');
+  const [developerSubPage, setDeveloperSubPage] = useState<DeveloperTab>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [activeRole, setActiveRole] = useState<UserRole>('doctor');
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>({
+    id: 'USR-DOC-001',
+    email: 'doctor@neurofusion.org',
+    username: 'doctor',
+    name: 'Dr. Elena Vance, MD, PhD',
+    role: 'doctor',
+    title: 'Lead Clinical Neuropsychiatrist',
+    department: 'NeuroImaging Diagnostic Center',
+    institution: 'Computational Neuroscience Institute',
+    permissions: ['analysis:clinical', 'reports:generate', 'eeg:inspect', 'imaging:inspect']
+  });
 
-  // Global state
+  // Global Pipeline State (Preserving 100% existing functionality)
   const [statusData, setStatusData] = useState<SystemStatusResponse | null>(null);
   const [samples, setSamples] = useState<DatasetSample[]>([]);
   const [activeSampleId, setActiveSampleId] = useState<string>('sch-norm-S10W1');
@@ -53,6 +76,12 @@ export const App: React.FC = () => {
 
   const loadInitialData = async () => {
     try {
+      const user = await apiService.getCurrentUser().catch(() => null);
+      if (user) {
+        setCurrentUser(user);
+        setActiveRole(user.role);
+      }
+
       const [status, sampleList, conn, xai, evaluation, comparison, severity] = await Promise.all([
         apiService.getStatus().catch(() => null),
         apiService.getSamples().catch(() => []),
@@ -71,7 +100,7 @@ export const App: React.FC = () => {
       if (comparison) setComparisonData(comparison);
       if (severity) setSeverityData(severity);
 
-      // Auto-load default baseline sample preset for immediate presentation readiness
+      // Auto-load default baseline sample preset
       if (sampleList.length > 0) {
         const defaultEeg = sampleList.find(s => s.type === 'eeg');
         const defaultMri = sampleList.find(s => s.type === 'mri') || {
@@ -178,8 +207,29 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleRoleAuthSuccess = (user: UserProfile) => {
+    setCurrentUser(user);
+    setActiveRole(user.role);
+    if (user.role === 'doctor') {
+      setActivePage('doctor-workspace');
+      setDoctorSubPage('overview');
+    } else if (user.role === 'developer') {
+      setActivePage('developer-console');
+      setDeveloperSubPage('overview');
+    }
+  };
+
+  const handleLogout = async () => {
+    await apiService.logout();
+    setCurrentUser(null);
+    setActivePage('landing');
+  };
+
   const getPageTitle = (page: NavigationPage) => {
     switch (page) {
+      case 'landing': return 'Computational Neuroscience Platform';
+      case 'doctor-workspace': return 'Doctor Analysis Workspace';
+      case 'developer-console': return 'Developer Research Lab';
       case 'overview': return 'Overview Dashboard';
       case 'data-input': return 'Data Input & Preprocessing';
       case 'prediction': return 'Model Predictions';
@@ -193,15 +243,72 @@ export const App: React.FC = () => {
     }
   };
 
+  // If Public Landing Page is active, render the dedicated public experience
+  if (activePage === 'landing') {
+    return (
+      <div className="min-h-screen bg-page text-body flex flex-col">
+        {/* Public Website Navigation Bar */}
+        <PublicNavbar
+          onLoginClick={(role) => {
+            if (role) setActiveRole(role);
+            setIsRoleModalOpen(true);
+          }}
+        />
+
+        {/* Public Hero, 3D Anatomy & Research Pipeline */}
+        <div className="pt-20">
+          <LandingPageView
+            onEnterRole={(role) => {
+              setActiveRole(role);
+              if (role === 'doctor') {
+                setActivePage('doctor-workspace');
+                setDoctorSubPage('overview');
+              } else {
+                setActivePage('developer-console');
+                setDeveloperSubPage('overview');
+              }
+            }}
+            onExploreWorkspace={() => {
+              if (activeRole === 'developer') {
+                setActivePage('developer-console');
+                setDeveloperSubPage('overview');
+              } else {
+                setActivePage('doctor-workspace');
+                setDoctorSubPage('overview');
+              }
+            }}
+          />
+        </div>
+
+        {/* Role-Based Authentication Gateway Modal */}
+        <RoleGatewayModal
+          isOpen={isRoleModalOpen}
+          onClose={() => setIsRoleModalOpen(false)}
+          onSuccess={handleRoleAuthSuccess}
+          initialRole={activeRole}
+        />
+      </div>
+    );
+  }
+
+  // Authenticated Role-Specific Workspace
   return (
-    <div className="min-h-screen bg-dark-900 text-slate-100 flex">
-      {/* Sidebar Navigation */}
+    <div className="min-h-screen bg-page text-body flex">
+
+      {/* Sidebar Navigation (Tailored strictly to Doctor or Developer) */}
       <Sidebar
         activePage={activePage}
         onSelectPage={setActivePage}
+        doctorSubPage={doctorSubPage}
+        onSelectDoctorSubPage={setDoctorSubPage}
+        developerSubPage={developerSubPage}
+        onSelectDeveloperSubPage={setDeveloperSubPage}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         systemReady={statusData?.pipelines?.eeg_pipeline?.status === 'ready'}
+        userRole={activeRole}
+        onLogout={handleLogout}
+        onReturnLanding={() => setActivePage('landing')}
       />
 
       {/* Main Content Area */}
@@ -211,9 +318,31 @@ export const App: React.FC = () => {
           activeSampleId={activeSampleId}
           statusData={statusData}
           onRefreshStatus={loadInitialData}
+          currentUser={currentUser}
+          activeRole={activeRole}
+          onOpenRoleGateway={() => setIsRoleModalOpen(true)}
+          onLogout={handleLogout}
         />
 
-        <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
+          {/* Doctor Workspace (Analysis-Centric) */}
+          {activePage === 'doctor-workspace' && (
+            <DoctorWorkspaceView
+              currentSubPage={doctorSubPage}
+              onNavigateSubPage={setDoctorSubPage}
+              currentUser={currentUser}
+            />
+          )}
+
+          {/* Developer / Researcher Console (Model-Centric Research Lab) */}
+          {activePage === 'developer-console' && (
+            <DeveloperConsoleView
+              currentTab={developerSubPage}
+              onNavigateTab={setDeveloperSubPage}
+            />
+          )}
+
+          {/* Preserved Standalone Computational Views (Reusable) */}
           {activePage === 'overview' && (
             <OverviewView
               statusData={statusData}
@@ -276,7 +405,11 @@ export const App: React.FC = () => {
           )}
 
           {activePage === 'severity' && (
-            <SeverityEstimationView severityData={severityData} />
+            <SeverityEstimationView
+              severityData={severityData}
+              onRefreshSeverity={() => apiService.getSeverity().then(setSeverityData)}
+              onNavigateToReport={() => setActivePage('report')}
+            />
           )}
 
           {activePage === 'report' && (
@@ -290,7 +423,16 @@ export const App: React.FC = () => {
           )}
         </main>
       </div>
+
+      {/* Role-Based Authentication Gateway Modal */}
+      <RoleGatewayModal
+        isOpen={isRoleModalOpen}
+        onClose={() => setIsRoleModalOpen(false)}
+        onSuccess={handleRoleAuthSuccess}
+        initialRole={activeRole}
+      />
     </div>
   );
 };
+
 export default App;
