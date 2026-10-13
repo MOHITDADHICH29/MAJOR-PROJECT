@@ -15,6 +15,7 @@ import { ModelComparisonView } from './views/ModelComparisonView';
 import { SeverityEstimationView } from './views/SeverityEstimationView';
 import { ResearchReportView } from './views/ResearchReportView';
 import { RoleGatewayModal } from './components/auth/RoleGatewayModal';
+import { RouteGuard } from './components/auth/RouteGuard';
 import { apiService } from './services/api';
 import {
   SystemStatusResponse,
@@ -40,17 +41,7 @@ export const App: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [activeRole, setActiveRole] = useState<UserRole>('doctor');
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>({
-    id: 'USR-DOC-001',
-    email: 'doctor@neurofusion.org',
-    username: 'doctor',
-    name: 'Dr. Elena Vance, MD, PhD',
-    role: 'doctor',
-    title: 'Lead Clinical Neuropsychiatrist',
-    department: 'NeuroImaging Diagnostic Center',
-    institution: 'Computational Neuroscience Institute',
-    permissions: ['analysis:clinical', 'reports:generate', 'eeg:inspect', 'imaging:inspect']
-  });
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
 
   // Global Pipeline State (Preserving 100% existing functionality)
   const [statusData, setStatusData] = useState<SystemStatusResponse | null>(null);
@@ -72,6 +63,22 @@ export const App: React.FC = () => {
   // Initial load
   useEffect(() => {
     loadInitialData();
+  }, []);
+
+  // Restore session on page load
+  useEffect(() => {
+    apiService.getCurrentUser().then((user) => {
+      if (user) {
+        setCurrentUser(user);
+        setActiveRole(user.role);
+        // Restore last workspace page if still on landing
+        if (activePage === 'landing') {
+          if (user.role === 'doctor') setActivePage('doctor-workspace');
+          else if (user.role === 'developer') setActivePage('developer-console');
+        }
+      }
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadInitialData = async () => {
@@ -208,6 +215,7 @@ export const App: React.FC = () => {
   };
 
   const handleRoleAuthSuccess = (user: UserProfile) => {
+    setIsRoleModalOpen(false);
     setCurrentUser(user);
     setActiveRole(user.role);
     if (user.role === 'doctor') {
@@ -260,21 +268,29 @@ export const App: React.FC = () => {
           <LandingPageView
             onEnterRole={(role) => {
               setActiveRole(role);
-              if (role === 'doctor') {
-                setActivePage('doctor-workspace');
-                setDoctorSubPage('overview');
+              if (!currentUser) {
+                setIsRoleModalOpen(true);
               } else {
-                setActivePage('developer-console');
-                setDeveloperSubPage('overview');
+                if (role === 'doctor') {
+                  setActivePage('doctor-workspace');
+                  setDoctorSubPage('overview');
+                } else {
+                  setActivePage('developer-console');
+                  setDeveloperSubPage('overview');
+                }
               }
             }}
             onExploreWorkspace={() => {
-              if (activeRole === 'developer') {
-                setActivePage('developer-console');
-                setDeveloperSubPage('overview');
+              if (!currentUser) {
+                setIsRoleModalOpen(true);
               } else {
-                setActivePage('doctor-workspace');
-                setDoctorSubPage('overview');
+                if (activeRole === 'developer') {
+                  setActivePage('developer-console');
+                  setDeveloperSubPage('overview');
+                } else {
+                  setActivePage('doctor-workspace');
+                  setDoctorSubPage('overview');
+                }
               }
             }}
           />
@@ -325,102 +341,111 @@ export const App: React.FC = () => {
         />
 
         <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
-          {/* Doctor Workspace (Analysis-Centric) */}
-          {activePage === 'doctor-workspace' && (
-            <DoctorWorkspaceView
-              currentSubPage={doctorSubPage}
-              onNavigateSubPage={setDoctorSubPage}
-              currentUser={currentUser}
-            />
-          )}
+          <RouteGuard
+            currentUser={currentUser}
+            activePage={activePage}
+            onRequestLogin={(role) => {
+              if (role) setActiveRole(role);
+              setIsRoleModalOpen(true);
+            }}
+          >
+            {/* Doctor Workspace (Analysis-Centric) */}
+            {activePage === 'doctor-workspace' && (
+              <DoctorWorkspaceView
+                currentSubPage={doctorSubPage}
+                onNavigateSubPage={setDoctorSubPage}
+                currentUser={currentUser}
+              />
+            )}
 
-          {/* Developer / Researcher Console (Model-Centric Research Lab) */}
-          {activePage === 'developer-console' && (
-            <DeveloperConsoleView
-              currentTab={developerSubPage}
-              onNavigateTab={setDeveloperSubPage}
-            />
-          )}
+            {/* Developer / Researcher Console (Model-Centric Research Lab) */}
+            {activePage === 'developer-console' && (
+              <DeveloperConsoleView
+                currentTab={developerSubPage}
+                onNavigateTab={setDeveloperSubPage}
+              />
+            )}
 
-          {/* Preserved Standalone Computational Views (Reusable) */}
-          {activePage === 'overview' && (
-            <OverviewView
-              statusData={statusData}
-              samples={samples}
-              activeEEG={activeEEG}
-              activeMRI={activeMRI}
-              activeFusion={activeFusion}
-              onNavigate={setActivePage}
-              onQuickLoadSample={handleSelectSample}
-              isLoading={isLoading}
-            />
-          )}
+            {/* Preserved Standalone Computational Views (Reusable) */}
+            {activePage === 'overview' && (
+              <OverviewView
+                statusData={statusData}
+                samples={samples}
+                activeEEG={activeEEG}
+                activeMRI={activeMRI}
+                activeFusion={activeFusion}
+                onNavigate={setActivePage}
+                onQuickLoadSample={handleSelectSample}
+                isLoading={isLoading}
+              />
+            )}
 
-          {activePage === 'data-input' && (
-            <DataInputView
-              samples={samples}
-              onSelectSample={handleSelectSample}
-              onUploadFile={handleUploadFile}
-              activeEEG={activeEEG}
-              activeMRI={activeMRI}
-              isLoading={isLoading}
-              onProceedToPrediction={() => setActivePage('prediction')}
-            />
-          )}
+            {activePage === 'data-input' && (
+              <DataInputView
+                samples={samples}
+                onSelectSample={handleSelectSample}
+                onUploadFile={handleUploadFile}
+                activeEEG={activeEEG}
+                activeMRI={activeMRI}
+                isLoading={isLoading}
+                onProceedToPrediction={() => setActivePage('prediction')}
+              />
+            )}
 
-          {activePage === 'prediction' && (
-            <PredictionView
-              eegResult={activeEEG}
-              mriResult={activeMRI}
-              fusionResult={activeFusion}
-              onNavigate={setActivePage}
-              onRunFusion={handleRunFusion}
-              isFusing={isFusing}
-            />
-          )}
+            {activePage === 'prediction' && (
+              <PredictionView
+                eegResult={activeEEG}
+                mriResult={activeMRI}
+                fusionResult={activeFusion}
+                onNavigate={setActivePage}
+                onRunFusion={handleRunFusion}
+                isFusing={isFusing}
+              />
+            )}
 
-          {activePage === 'explainability' && (
-            <ExplainabilityView
-              xaiData={xaiData}
-              eegResult={activeEEG}
-              mriResult={activeMRI}
-              fusionResult={activeFusion}
-            />
-          )}
+            {activePage === 'explainability' && (
+              <ExplainabilityView
+                xaiData={xaiData}
+                eegResult={activeEEG}
+                mriResult={activeMRI}
+                fusionResult={activeFusion}
+              />
+            )}
 
-          {activePage === 'connectivity' && (
-            <BrainConnectivityView
-              connectivityData={connectivityData}
-              onRefresh={() => apiService.getConnectivity().then(setConnectivityData)}
-              isLoading={isLoading}
-            />
-          )}
+            {activePage === 'connectivity' && (
+              <BrainConnectivityView
+                connectivityData={connectivityData}
+                onRefresh={() => apiService.getConnectivity().then(setConnectivityData)}
+                isLoading={isLoading}
+              />
+            )}
 
-          {activePage === 'evaluation' && (
-            <EvaluationView evalData={evalData} />
-          )}
+            {activePage === 'evaluation' && (
+              <EvaluationView evalData={evalData} />
+            )}
 
-          {activePage === 'comparison' && (
-            <ModelComparisonView comparisonData={comparisonData} />
-          )}
+            {activePage === 'comparison' && (
+              <ModelComparisonView comparisonData={comparisonData} />
+            )}
 
-          {activePage === 'severity' && (
-            <SeverityEstimationView
-              severityData={severityData}
-              onRefreshSeverity={() => apiService.getSeverity().then(setSeverityData)}
-              onNavigateToReport={() => setActivePage('report')}
-            />
-          )}
+            {activePage === 'severity' && (
+              <SeverityEstimationView
+                severityData={severityData}
+                onRefreshSeverity={() => apiService.getSeverity().then(setSeverityData)}
+                onNavigateToReport={() => setActivePage('report')}
+              />
+            )}
 
-          {activePage === 'report' && (
-            <ResearchReportView
-              activeSampleId={activeSampleId}
-              eegResult={activeEEG}
-              mriResult={activeMRI}
-              fusionResult={activeFusion}
-              onGenerateReport={handleGenerateReport}
-            />
-          )}
+            {activePage === 'report' && (
+              <ResearchReportView
+                activeSampleId={activeSampleId}
+                eegResult={activeEEG}
+                mriResult={activeMRI}
+                fusionResult={activeFusion}
+                onGenerateReport={handleGenerateReport}
+              />
+            )}
+          </RouteGuard>
         </main>
       </div>
 

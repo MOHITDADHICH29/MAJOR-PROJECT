@@ -19,6 +19,25 @@ NeuroFusion AI is an end-to-end translational neuroscience and machine learning 
 
 ---
 
+## 🌐 Live Web Deployment & Demo Credentials
+
+NeuroFusion AI is deployed on Firebase Hosting:
+
+**Live URL**: [https://neurofusion-ai-79bca.web.app](https://neurofusion-ai-79bca.web.app)
+
+### Demo Access Credentials
+
+| Role | Email Identifier | Password | Access Scope |
+| :--- | :--- | :--- | :--- |
+| **Doctor** | `doctor.demo@neurofusion.ai` | `DoctorDemo2026!` | Clinical Analysis Workspace, patient intake, 10-20 EEG viewer, tri-planar MRI slicer, 3D anatomical brain, severity estimation, clinical research report generation |
+| **Developer** | `developer.demo@neurofusion.ai` | `DeveloperDemo2026!` | Model Development & Research Lab, 5-fold CV benchmarks, training runs, architecture comparisons, SHAP explainability, error attribution, doctor credential audit |
+| *Doctor (Legacy)* | `doctor@neurofusion.org` | `doctor123` | Backwards-compatible clinician login |
+| *Developer (Legacy)* | `developer@neurofusion.org` | `developer123` | Backwards-compatible developer login |
+
+> **Offline & Cloud Architecture**: On Firebase Hosting, client-side authentication and high-fidelity neuroimaging data are supported with offline fallback, enabling full interactive exploration of all 3D viewers, EEG signal spectra, and multimodal decision matrices without requiring a local Python backend.
+
+---
+
 ## 🚀 Getting Started (Fresh Clone — Run on Any System)
 
 ### Prerequisites

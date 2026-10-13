@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Stethoscope,
   Terminal,
@@ -27,6 +27,35 @@ interface RoleGatewayModalProps {
 
 type AuthMode = 'sign-in' | 'register-doctor' | 'pending-status';
 
+const ROLE_CONFIGS: Record<UserRole, {
+  title: string;
+  subtitle: string;
+  icon: any;
+  emailPlaceholder: string;
+  demoEmail: string;
+  demoPass: string;
+  badge: string;
+}> = {
+  doctor: {
+    title: 'Doctor',
+    subtitle: 'Clinical Analysis Workspace',
+    icon: Stethoscope,
+    emailPlaceholder: 'doctor.demo@neurofusion.ai',
+    demoEmail: 'doctor.demo@neurofusion.ai',
+    demoPass: 'DoctorDemo2026!',
+    badge: 'CLINICAL SUITE',
+  },
+  developer: {
+    title: 'Developer',
+    subtitle: 'Model Development & Research Lab',
+    icon: Terminal,
+    emailPlaceholder: 'developer.demo@neurofusion.ai',
+    demoEmail: 'developer.demo@neurofusion.ai',
+    demoPass: 'DeveloperDemo2026!',
+    badge: 'RESEARCH COMPUTING',
+  }
+};
+
 export const RoleGatewayModal: React.FC<RoleGatewayModalProps> = ({
   isOpen,
   onClose,
@@ -35,8 +64,8 @@ export const RoleGatewayModal: React.FC<RoleGatewayModalProps> = ({
 }) => {
   const [authMode, setAuthMode] = useState<AuthMode>('sign-in');
   const [selectedRole, setSelectedRole] = useState<UserRole>(initialRole);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(ROLE_CONFIGS[initialRole]?.demoEmail || '');
+  const [password, setPassword] = useState(ROLE_CONFIGS[initialRole]?.demoPass || '');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,36 +73,19 @@ export const RoleGatewayModal: React.FC<RoleGatewayModalProps> = ({
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [pendingDoctorInfo, setPendingDoctorInfo] = useState<any>(null);
 
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedRole(initialRole);
+      setEmail(ROLE_CONFIGS[initialRole]?.demoEmail || '');
+      setPassword(ROLE_CONFIGS[initialRole]?.demoPass || '');
+      setError(null);
+      setAuthMode('sign-in');
+    }
+  }, [isOpen, initialRole]);
+
   if (!isOpen) return null;
 
-  const roleConfigs: Record<UserRole, {
-    title: string;
-    subtitle: string;
-    icon: any;
-    emailPlaceholder: string;
-    demoEmail: string;
-    demoPass: string;
-    badge: string;
-  }> = {
-    doctor: {
-      title: 'Doctor',
-      subtitle: 'Clinical Analysis Workspace',
-      icon: Stethoscope,
-      emailPlaceholder: 'doctor@neurofusion.org',
-      demoEmail: 'doctor@neurofusion.org',
-      demoPass: 'doctor123',
-      badge: 'CLINICAL SUITE',
-    },
-    developer: {
-      title: 'Developer',
-      subtitle: 'Model Development & Research Lab',
-      icon: Terminal,
-      emailPlaceholder: 'developer@neurofusion.org',
-      demoEmail: 'developer@neurofusion.org',
-      demoPass: 'developer123',
-      badge: 'RESEARCH COMPUTING',
-    }
-  };
+  const roleConfigs = ROLE_CONFIGS;
 
   const handleRoleToggle = (role: UserRole) => {
     setSelectedRole(role);
@@ -113,7 +125,7 @@ export const RoleGatewayModal: React.FC<RoleGatewayModalProps> = ({
       if (err?.response?.data?.approval_status === 'Rejected') {
         setError('Your medical registration was reviewed and rejected. Protected clinical analysis features are unavailable.');
       } else {
-        setError(err?.response?.data?.error || 'Authentication error. Please try again.');
+        setError(err?.response?.data?.error || err?.message || 'Authentication error. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -317,7 +329,7 @@ export const RoleGatewayModal: React.FC<RoleGatewayModalProps> = ({
                   </button>
                 )}
                 <p className="text-[11px] font-mono text-muted text-center">
-                  Pre-configured accounts: <span className="text-forest">doctor@neurofusion.org</span> &bull; <span className="text-forest">developer@neurofusion.org</span>
+                  Demo: <span className="text-forest">doctor.demo@neurofusion.ai</span> &bull; <span className="text-forest">developer.demo@neurofusion.ai</span>
                 </p>
               </div>
             </form>
