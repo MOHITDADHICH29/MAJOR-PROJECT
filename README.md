@@ -1,12 +1,21 @@
 # NeuroFusion AI — Multimodal Schizophrenia Classification Platform
 
-A production-grade, multi-site machine learning and clinical research platform for binary classification of **Schizophrenia Patients vs. Healthy Controls** using multimodal electroencephalography (EEG) and 3D structural T1w MRI, featuring:
-- **Interactive 3D Human Nervous System Visualization** with full central and peripheral neuro-conduits.
-- **Detailed 3D Brain Mapping with 10-20 Electrode Coordinates** and real-time signal intensity extraction.
-- **Interactive Severity Estimation Graphs** (Recharts multi-system divergence and 3-Tier research scale).
-- **Comprehensive Doctor Portal & Clinical Workspace** with 3-step multimodal analysis initialization and report compilation.
-- **Developer / ML Research Laboratory Console** with centralized **Doctor Credential Management** (audit trails, license document inspection, and status filtering).
-- **Fast, Robust Flask REST API** with cross-modal decision fusion and verified machine learning models.
+A production-grade, multi-site machine learning and clinical research platform for binary classification of **Schizophrenia Patients vs. Healthy Controls** using multimodal electroencephalography (EEG) and 3D structural T1w MRI.
+
+---
+
+## 📖 Project Overview & Information
+
+### What is NeuroFusion AI?
+NeuroFusion AI is an end-to-end translational neuroscience and machine learning research platform designed to overcome domain shift across disparate clinical acquisition sites. Traditional single-modality psychiatric assessment is vulnerable to sensor noise, electrode impedance variations, and institutional scanner drift. NeuroFusion AI harmonizes **high temporal resolution electrophysiology (16-channel EEG)** with **high spatial resolution 3D structural neuroimaging (T1w MRI)** using confidence-calibrated decision fusion.
+
+### Clinical & Scientific Motivation
+- **The Challenge**: Schizophrenia is characterized by subtle, multi-system neural alterations — prefrontal cortical thinning, ventricular enlargement, and fronto-temporal dysconnectivity — which can be missed or confounded when evaluated through a single modality or unstandardized signal scales.
+- **The NeuroFusion Solution**:
+  1. **Electrophysiological Domain Invariance**: Extracts 432 scale-invariant EEG features (relative Welch band powers, frontal $\theta/\alpha$ slowing indices, hemispheric asymmetry, and functional connectivity) eliminating multi-site voltage scaling errors.
+  2. **Anatomical Atlas Parcellation**: Deconstructs 3D T1w MRIs into 111 stereotaxic regions of interest (MNI-152 frame), extracting gray/white matter tissue volumes, Ventricle-to-Brain Ratios (VBR), and 3D GLCM texture moments.
+  3. **Synergistic Cross-Modal Decision Fusion**: Dynamically arbitrates between EEG and MRI predictions using certainty-gated soft voting, reaching **82.02% mean 5-fold cross-validation accuracy** (peak **89.50%**) and an **ROC-AUC of 0.8958**.
+  4. **Interactive 3D Web Visualization**: Equips clinicians and researchers with real-time 3D anatomical models, interactive 10-20 electrode signal inspection, quantitative biomarker deviation profiling, and secure role-gated administrative controls.
 
 ---
 
@@ -83,12 +92,13 @@ Dashboard will be available at: `http://localhost:5173`
 
 ### 1. Natural 3D Human Nervous System (`HumanBody3D`)
 - **Realistic Anatomy**: Full human nervous system with proportional head, cervical spine, ribcage, pelvis, arms, and legs.
-- **Central & Peripheral Axis**: Golden/natural cerebral cortex directly connected to a continuous cervical-to-sacral spinal cord with bilateral brachial, intercostal, sciatic, tibial, and digital filaments.
+- **Central & Peripheral Axis**: Cerebral cortex connected to a continuous cervical-to-sacral spinal cord with bilateral brachial, intercostal, sciatic, tibial, and digital filaments.
+- **Natural Biological Materials**: Realistic cerebral gray matter, ivory myelinated spinal cord, and natural peripheral myelin filaments under clean clinical research illumination.
 - **Camera Presets & Controls**: Front, Back, Head Zoom, and Reset buttons with smooth damping, zoom, pan, and auto-rotation toggle.
-- **Smooth Macro-to-Micro Traversal**: Direct navigation from whole-body coordinate space into detailed cranial saliency.
+- **Macro-to-Micro Traversal**: Direct navigation from whole-body coordinate space into detailed cranial saliency.
 
 ### 2. Interactive 3D Brain & Clickable 10-20 Electrodes (`Brain3D`)
-- **Standard 10-20 Electrode Montage**: Mapped scalp electrodes (`Fp1`, `Fp2`, `F7`, `F3`, `Fz`, `F4`, `F8`, `T3`, `C3`, `Cz`, `C4`, `T4`, `T5`, `P3`, `Pz`, `P4`, `T6`, `O1`, `O2`).
+- **Standard 10-20 Electrode Montage**: Co-registered scalp electrodes (`Fp1`, `Fp2`, `F7`, `F3`, `Fz`, `F4`, `F8`, `T3`, `C3`, `Cz`, `C4`, `T4`, `T5`, `P3`, `Pz`, `P4`, `T6`, `O1`, `O2`).
 - **Live Signal Intensity Calculation**: Independent click selection computing real microvolt amplitude ($\mu\text{V}$), intensity score ([0-1]), and relative band power spectrum ($\delta, \theta, \alpha, \beta, \gamma$) from the active subject's session.
 - **Spectral Band Filtering**: Interactive frequency band selector dynamically coloring nodes based on regional activity.
 
